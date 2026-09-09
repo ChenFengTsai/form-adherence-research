@@ -1,0 +1,32 @@
+# --- external clones (large; each user clones their own) ---
+external/YuE/
+external/**/xcodec_mini_infer/
+
+# --- data, caches, artifacts (never commit) ---
+data/
+cache/
+checkpoints/
+outputs/
+*.wav
+*.mp3
+*.flac
+*.npy
+*.npz
+*.pt
+*.ckpt
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+
+# --- editors / os ---
+.vscode/
+.idea/
+.DS_Store

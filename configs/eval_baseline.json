@@ -1,0 +1,27 @@
+{
+  "mode": "evaluation",
+  "metric": {
+    "ot_backend": "exact",
+    "sinkhorn_eps": 0.05,
+    "sinkhorn_max_iter": 200,
+    "sinkhorn_tol": 1e-06,
+    "max_frames_per_segment": 256,
+    "mp_window": 32,
+    "mp_exclusion_zone": 0.5,
+    "n_boundaries": null,
+    "tau": 0.12,
+    "variation_floor": 0.005,
+    "variation_softness": 0.1,
+    "combine": "geometric",
+    "axis_weights": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "similarity_temperature": 0.3
+  },
+  "evaluation": {
+    "discover_boundaries": true
+  },
+  "reward": null
+}

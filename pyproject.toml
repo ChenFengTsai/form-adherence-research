@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "formadherence"
+version = "0.1.0"
+description = "Conditional structural-form adherence metric for full-song music generation, and its use as an RL reward."
+readme = "docs/README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Your Name" }]
+
+# Core metric depends only on numpy + scipy so it imports on any machine
+# (no GPU / no model weights needed to run the metric or its tests).
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+# Audio embedding extraction (CLAP + EnCodec). Install on your GPU box.
+extract = [
+    "torch>=2.0",
+    "transformers>=4.40",
+    "encodec>=0.1.1",
+    "soundfile>=0.12",
+]
+# Dev / testing.
+dev = [
+    "pytest>=7.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["formadherence*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
