@@ -10,6 +10,10 @@ transformers, encodec, soundfile).
         --cache_dir cache/embeddings \
         --frame_rate 2.0
 
+By default this picks up both .wav and .mp3 files. MP3 is lossy, so its
+embeddings won't be bit-identical to the WAV of the same song -- keep a song's
+pipeline on one format for comparable numbers.
+
 FIRST-RUN SMOKE TEST (do this before trusting anything downstream):
     the script prints the (T, d) shape of the first file. Confirm
     T ~= duration_seconds * frame_rate and d = CLAP_dim + EnCodec_dim.
@@ -32,6 +36,25 @@ def file_key(path: str) -> str:
     return h.hexdigest()[:16]
 
 
+def read_audio(path):
+    """Read wav or mp3 as (samples, sample_rate).
+
+    Tries soundfile first (fast, handles wav and -- with libsndfile >= 1.1.0 --
+    mp3). Falls back to librosa/audioread (ffmpeg backend) for mp3 when the
+    installed libsndfile lacks MP3 support.
+    """
+    import soundfile as sf
+    try:
+        wav, sr = sf.read(path)
+        return np.asarray(wav), sr
+    except Exception:
+        import librosa
+        wav, sr = librosa.load(path, sr=None, mono=False)
+        if wav.ndim == 2:
+            wav = wav.T
+        return np.asarray(wav), sr
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--audio_dir", required=True)
@@ -40,12 +63,13 @@ def main():
                     help="common frames/sec grid for the fused embedding")
     ap.add_argument("--encodec_pool", type=int, default=8,
                     help="time-pool EnCodec frames to lower T")
-    ap.add_argument("--glob", default="*.wav")
+    ap.add_argument("--glob", default=None,
+                    help="override file glob; by default matches *.wav and "
+                         "*.mp3 (case-insensitive)")
     args = ap.parse_args()
 
     # Imported here so the script fails loudly only when actually run without
     # the extraction extras installed.
-    import soundfile as sf
     from formadherence.integration import (
         ClapExtractor, EncodecExtractor, ConcatExtractor,
     )
@@ -57,9 +81,16 @@ def main():
     )
 
     os.makedirs(args.cache_dir, exist_ok=True)
-    paths = sorted(glob.glob(os.path.join(args.audio_dir, args.glob)))
+
+    if args.glob:
+        patterns = [args.glob]
+    else:
+        patterns = ["*.wav", "*.WAV", "*.mp3", "*.MP3"]
+    paths = sorted({p for pat in patterns
+                    for p in glob.glob(os.path.join(args.audio_dir, pat))})
     if not paths:
-        raise SystemExit(f"no files matching {args.glob} in {args.audio_dir}")
+        want = args.glob or "*.wav / *.mp3"
+        raise SystemExit(f"no files matching {want} in {args.audio_dir}")
 
     for i, path in enumerate(paths):
         key = file_key(path)
@@ -67,7 +98,7 @@ def main():
         if os.path.exists(out):
             print(f"[skip] {os.path.basename(path)} -> {key}.npy (cached)")
             continue
-        wav, sr = sf.read(path)
+        wav, sr = read_audio(path)
         emb = extractor.extract(np.asarray(wav), sr)
         np.save(out, emb)
         print(f"[ok]   {os.path.basename(path)} -> {key}.npy  shape={emb.shape}")

@@ -4,9 +4,12 @@ target form. No RL, no reward shaping.
 
 Two ways to use it:
 
-  A) Score a wav you already have (or generated separately with YuE's infer.py):
+  A) Score an audio file you already have (wav or mp3), or one generated
+     separately with YuE's infer.py:
        python scripts/run_evaluation.py \
-           --wav outputs/wavs/song.wav --form ABACA
+           --audio outputs/wavs/song.wav --form ABACA
+       python scripts/run_evaluation.py \
+           --audio outputs/wavs/song.mp3 --form ABACA
 
   B) Score a cached embedding array directly (fastest for the AI test corpus):
        python scripts/run_evaluation.py \
@@ -14,6 +17,11 @@ Two ways to use it:
 
 Loads calibration from configs/eval_baseline.json if present, so the metric uses
 your fitted tau/floor/temperature rather than the synthetic-data defaults.
+
+NOTE: --wav is kept as an alias of --audio for backwards compatibility; both
+accept wav or mp3. MP3 is lossy, so its embeddings won't be bit-identical to
+the WAV of the same song -- keep a song's pipeline on one format for comparable
+numbers.
 """
 
 import argparse
@@ -22,11 +30,32 @@ import json
 import numpy as np
 
 
+def read_audio(path):
+    """Read wav or mp3 as (samples, sample_rate).
+
+    Tries soundfile first (fast, handles wav and -- with libsndfile >= 1.1.0 --
+    mp3). Falls back to librosa/audioread (ffmpeg backend) for mp3 when the
+    installed libsndfile lacks MP3 support.
+    """
+    import soundfile as sf
+    try:
+        wav, sr = sf.read(path)
+        return np.asarray(wav), sr
+    except Exception:
+        import librosa
+        wav, sr = librosa.load(path, sr=None, mono=False)
+        if wav.ndim == 2:
+            wav = wav.T
+        return np.asarray(wav), sr
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--form", required=True, help="target letter form, e.g. ABACA")
+    ap.add_argument("--form", required=True,
+                    help="target letter form, e.g. ABACA")
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--wav", help="path to an audio file to score")
+    src.add_argument("--audio", "--wav", dest="audio",
+                     help="path to an audio file to score (wav or mp3)")
     src.add_argument("--emb", help="path to a cached (T,d) .npy embedding array")
     ap.add_argument("--config", default="configs/eval_baseline.json")
     ap.add_argument("--boundaries", default=None,
@@ -55,7 +84,6 @@ def main():
         res = runner.evaluate_from_embeddings(emb, args.form,
                                               boundaries=boundaries)
     else:
-        import soundfile as sf
         from formadherence.integration import (
             GeneratedSong, ClapExtractor, EncodecExtractor, ConcatExtractor)
         extractor = ConcatExtractor(
@@ -63,7 +91,7 @@ def main():
              EncodecExtractor(bandwidth=6.0, pool=8)],
             target_frame_rate=2.0)
         runner = build_runner(cfg, extractor)
-        wav, sr = sf.read(args.wav)
+        wav, sr = read_audio(args.audio)
         song = GeneratedSong(audio=np.asarray(wav), sample_rate=sr,
                              target_form=args.form)
         res = runner.evaluate(song, boundaries=boundaries)

@@ -62,7 +62,7 @@ class ClapExtractor(EmbeddingExtractor):
         from transformers import ClapModel, ClapProcessor
         self.torch = torch
         self.device = device
-        self.model = ClapModel.from_pretrained(model_name).to(device).eval()
+        self.model = ClapModel.from_pretrained(model_name, use_safetensors=True).to(device).eval()
         self.processor = ClapProcessor.from_pretrained(model_name)
         self.window_s = window_s
         self.hop_s = hop_s
@@ -86,10 +86,16 @@ class ClapExtractor(EmbeddingExtractor):
         with torch.no_grad():
             for s in starts:
                 chunk = wav[s:s + win]
-                inputs = self.processor(audios=chunk, sampling_rate=sample_rate,
+                inputs = self.processor(audio=chunk, sampling_rate=sample_rate,
                                         return_tensors="pt")
                 inputs = {k: v.to(self.device) for k, v in inputs.items()}
                 e = self.model.get_audio_features(**inputs)
+                if not isinstance(e, torch.Tensor):
+                    e = e.pooler_output
+                    if e is None:
+                        raise TypeError(
+                            "get_audio_features returned a non-tensor without .audio_embeds; "
+                            "inspect the object to find the embedding field")
                 embs.append(e.squeeze(0).float().cpu().numpy())
         return self._finalize(np.stack(embs))
 
