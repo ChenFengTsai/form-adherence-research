@@ -44,6 +44,7 @@ apart and pass wavs between them via `outputs/wavs/`.
 6. **Metric/extraction env:**
     ```bash
     conda create -n fa python=3.11 && conda activate fa
+    pip install "torch>=2.6" "torchaudio>=2.6" --index-url https://download.pytorch.org/whl/cu124
     pip install -e ".[extract,dev]"       # numpy, scipy, torch, transformers, encodec, soundfile, pytest
     python -m pytest -q                    # expect 20 passed
     ```
@@ -51,10 +52,10 @@ apart and pass wavs between them via `outputs/wavs/`.
     ```bash
     conda create -n yue python=3.8 && conda activate yue
     conda install pytorch torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+    conda install -c nvidia cuda-toolkit=11.8 -y
     mkdir -p external && cd external
     git clone https://github.com/multimodal-art-projection/YuE.git
     cd YuE && pip install -r requirements.txt
-    conda install -c nvidia cuda-toolkit=11.8 -y
     pip install flash-attn --no-build-isolation
     cd inference && git clone https://huggingface.co/m-a-p/xcodec_mini_infer
     ```
@@ -96,8 +97,11 @@ apart and pass wavs between them via `outputs/wavs/`.
 ## Phase 4 — Calibration
 The shipped defaults are fit on synthetic data and **will be wrong** for real
 CLAP/EnCodec distances.
+
 11. Get SALAMI / RWC-Pop / Harmonix (each has its own access process). Put audio + annotations under `data/msa/`.
+
 12. Extract embeddings for the annotated songs (step 9), then build a manifest aligning annotated boundaries (seconds → frame indices via `frame_rate`) and labels: `data/msa/manifest.json` (schema in `scripts/calibrate.py`).
+
 13. Fit the band and temperature:
     ```bash
     python scripts/calibrate.py --manifest data/msa/manifest.json \
