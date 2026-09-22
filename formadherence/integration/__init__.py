@@ -2,6 +2,7 @@
 
 from .embeddings import (
     EmbeddingExtractor, ClapExtractor, EncodecExtractor, ConcatExtractor,
+    ChromaMfccExtractor,
 )
 from .generators import (
     MusicGenerator, GeneratedSong, YuEGenerator, CommandLineGenerator,

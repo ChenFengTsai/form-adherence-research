@@ -9,8 +9,8 @@
     "mp_window": 32,
     "mp_exclusion_zone": 0.5,
     "n_boundaries": null,
-    "tau": 0.2895772157850912,
-    "variation_floor": 0.040788107556193234,
+    "tau": 0.2975666647675465,
+    "variation_floor": 0.03974636671441759,
     "variation_softness": 0.1,
     "combine": "geometric",
     "axis_weights": [
@@ -18,7 +18,7 @@
       1.0,
       1.0
     ],
-    "similarity_temperature": 0.1508419926253893
+    "similarity_temperature": 0.15079726947230915
   },
   "evaluation": {
     "discover_boundaries": true

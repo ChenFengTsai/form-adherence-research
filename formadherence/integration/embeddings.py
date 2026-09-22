@@ -161,6 +161,64 @@ class ConcatExtractor(EmbeddingExtractor):
         return self._finalize(fused)
 
 
+class ChromaMfccExtractor(EmbeddingExtractor):
+    """Chroma + MFCC per-frame features -- structure-native (harmony + timbre).
+
+    CLAP is semantic (cross-song "what kind of music") and EnCodec encodes
+    acoustic detail for reconstruction; neither is built to tell one section of
+    a song from another. Chroma and MFCC are the classical Music-Structure-
+    Analysis features and are within-song discriminative by construction:
+      * chroma_cqt (12 dims)   -- pitch-class energy / harmony
+      * MFCCs (n_mfcc)         -- timbre
+      * optional MFCC deltas   -- local timbral change
+    Each frame concatenates the above, standardized per-dimension then
+    L2-normalized by _finalize so the cosine ground metric behaves. Drops
+    straight into ConcatExtractor on the shared frame grid.
+    """
+
+    def __init__(self, frame_rate: float = 2.0, n_mfcc: int = 20,
+                 use_delta: bool = True, target_sr: int = 22050):
+        self.frame_rate = frame_rate
+        self.n_mfcc = n_mfcc
+        self.use_delta = use_delta
+        self.target_sr = target_sr
+
+    def extract(self, waveform: np.ndarray, sample_rate: int) -> np.ndarray:
+        import librosa
+
+        wav = _to_mono(waveform)
+        if sample_rate != self.target_sr:
+            wav = _resample(wav, sample_rate, self.target_sr)
+            sample_rate = self.target_sr
+
+        # chroma_cqt requires hop_length to be a multiple of 2**n_octaves
+        # (7 octaves by default -> 128). Round the target hop onto that grid;
+        # ConcatExtractor resamples to the common frame grid afterwards, so the
+        # tiny frame-rate drift from rounding is harmless.
+        raw_hop = sample_rate / self.frame_rate
+        hop = max(1, int(round(raw_hop / 128))) * 128
+
+        chroma = librosa.feature.chroma_cqt(
+            y=wav, sr=sample_rate, hop_length=hop)                      # (12, T)
+        mfcc = librosa.feature.mfcc(
+            y=wav, sr=sample_rate, n_mfcc=self.n_mfcc, hop_length=hop)  # (n_mfcc, T)
+
+        feats = [chroma, mfcc]
+        if self.use_delta:
+            feats.append(librosa.feature.delta(mfcc))                  # (n_mfcc, T)
+
+        # feature functions can differ by a frame; trim to shortest and stack
+        T = min(f.shape[1] for f in feats)
+        feats = [f[:, :T] for f in feats]
+        X = np.concatenate(feats, axis=0).T                            # (T, d)
+
+        # per-dimension standardization so chroma and MFCC scales are comparable
+        mu = X.mean(axis=0, keepdims=True)
+        sd = X.std(axis=0, keepdims=True) + 1e-8
+        X = (X - mu) / sd
+
+        return self._finalize(X)
+
 # ---- small dependency-free helpers --------------------------------------
 
 def _to_mono(w: np.ndarray) -> np.ndarray:
