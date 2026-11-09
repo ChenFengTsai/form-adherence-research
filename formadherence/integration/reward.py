@@ -1,25 +1,24 @@
-"""From a generated song to a reinforcement-learning reward.
+"""From a generated song to an RL reward.
 
-Pipeline:  GeneratedSong -> embeddings -> score_form_adherence -> shaped reward.
+GeneratedSong -> embeddings -> score_form_adherence -> shaped scalar reward.
 
-This is the object the RL loop calls. It bundles the three defences the proposal
-names in Section 6.2:
+Defences against reward hacking:
+  1. Axis weights the curriculum can anneal (set_phase).
+  2. Penalties computed on the raw audio:
+       silence       whole song near-silent, or clipping
+       noise         white-noise-like audio (mean spectral flatness); also gates
+                     variation credit, since noise inflates repeat distances
+       quiet_section NEW: a section far quieter than the song's typical
+                     section. Cheapest way to fake "different sections" is to
+                     make one letter near-silent; this catches it.
+  3. Metric settings can be changed between phases (set_phase(**overrides)).
 
-  1. Reward-shaping over axes. The three axes are weighted independently and the
-     weights can be annealed across training (curriculum: reward distinctness &
-     similarity first, phase in variation once structure is stable).
-  2. Anti-hacking ensemble. Axis 3 (variation) is the most game-able -- a policy
-     can inject meaningless noise that lands in the band. We subtract two cheap
-     penalties that noise-injection triggers but real variation does not:
-        - a silence/degeneracy penalty (near-silent or clipping audio)
-        - a spectral-flatness penalty (white-noise-like sections)
-     and expose hooks to add OA / SSM ensemble terms.
-  3. Recalibration hook. `tau` and friends live in the metric config and can be
-     re-set between training phases from held-out human annotations.
-
-The reward is returned both as a scalar (for vanilla policy gradient) and as the
-raw axis vector + penalty breakdown (for shaped/multi-objective training and for
-the reward-hacking audits in the evaluation plan).
+Fixes in v0.2: the reward uses the metric's graded raw_axes and multiplies
+in the penalties, so weak rollouts don't all tie at 0 (no GRPO signal);
+penalties work on stereo input (the noise score used to crash
+on 2-D audio); set_phase accepts any metric setting (tau alone did nothing in
+the new relative mode); result meta reports segmentation_fallback, auc and
+contrast for logging.
 """
 
 from __future__ import annotations
@@ -29,7 +28,7 @@ import numpy as np
 
 from ..config import FormAdherenceConfig
 from ..metric import score_form_adherence, FormAdherenceResult
-from .embeddings import EmbeddingExtractor
+from .embeddings import EmbeddingExtractor, _to_mono
 from .generators import GeneratedSong
 
 
@@ -45,38 +44,55 @@ class RewardOutput:
 @dataclass
 class RewardConfig:
     metric: FormAdherenceConfig = field(default_factory=FormAdherenceConfig)
+    # The reward's own axis weights (annealed by the curriculum). The metric's
+    # axis_weights only affect result.overall, which the reward does not use.
     axis_weights: tuple[float, float, float] = (1.0, 1.0, 1.0)
-    # Penalty coefficients (subtracted from the shaped axis reward).
     silence_penalty: float = 1.0
     noise_penalty: float = 1.0
-    # A song landing in the variation band ONLY because it is noisy should not
-    # be rewarded: gate variation credit by (1 - noise_score).
+    quiet_section_penalty: float = 0.5
+    quiet_section_db: float = 20.0     # this far below the median section ...
+    quiet_section_ramp_db: float = 10.0  # ... starts the penalty, full after +ramp
     gate_variation_by_noise: bool = True
-    combine: str = "geometric"         # mirror metric.combine by default
+    combine: str = "geometric"
+    # Use the metric's graded raw_axes (relative mode) instead of the reported
+    # axes. Reported axes clip everything below chance to 0, so early-training
+    # rollouts would tie and GRPO would get no advantage signal.
+    use_raw_axes: bool = True
+    # multiplicative: scalar = shaped * prod(1 - coeff * penalty). Keeps the
+    # ordering among weak songs. subtractive (old): shaped - sum(coeff *
+    # penalty), clipped at 0 -> weak, slightly penalized songs all tie at 0.
+    penalty_mode: str = "multiplicative"
 
 
 class FormAdherenceReward:
-    def __init__(self, extractor: EmbeddingExtractor,
-                 config: RewardConfig | None = None):
+    def __init__(self, extractor: EmbeddingExtractor, config: RewardConfig | None = None):
         self.extractor = extractor
         self.cfg = config or RewardConfig()
 
-    # -- public API the RL loop uses --------------------------------------
-
     def __call__(self, song: GeneratedSong) -> RewardOutput:
         emb = self.extractor.extract(song.audio, song.sample_rate)
-        result = score_form_adherence(
-            emb, song.target_form, boundaries=None, config=self.cfg.metric)
+        return self.score_embeddings(emb, song)
 
-        axes = result.as_reward_vector().copy()   # D, S, V
+    def score_embeddings(self, emb: np.ndarray, song: GeneratedSong) -> RewardOutput:
+        """Reward from precomputed embeddings (also handy for testing)."""
+        # audio -> Axis 3 on note changes (noise/EQ can't fake variation)
+        result = score_form_adherence(emb, song.target_form, boundaries=None,
+                                      config=self.cfg.metric, audio=song.audio,
+                                      sample_rate=song.sample_rate)
+        if self.cfg.use_raw_axes and result.raw_axes is not None:
+            axes = np.asarray(result.raw_axes, dtype=np.float64)
+        else:
+            axes = result.as_reward_vector().copy()   # D, S, V
+        audio = _to_mono(song.audio)
 
-        # ----- anti-hacking penalties (computed on raw audio) -----
-        sil = _silence_score(song.audio)
-        noise = _noise_score(song.audio, song.sample_rate)
-        penalties = {"silence": sil, "noise": noise}
+        sil = _silence_score(audio)
+        noise = _noise_score(audio, song.sample_rate)
+        quiet = _quiet_section_score(audio, song.sample_rate, result.segments,
+                                     len(emb), self.cfg.quiet_section_db,
+                                     self.cfg.quiet_section_ramp_db)
+        penalties = {"silence": sil, "noise": noise, "quiet_section": quiet}
 
         if self.cfg.gate_variation_by_noise:
-            # Noise inflates apparent variation; discount it.
             axes[2] = axes[2] * (1.0 - noise)
 
         w = np.asarray(self.cfg.axis_weights, dtype=np.float64)
@@ -86,51 +102,73 @@ class FormAdherenceReward:
         else:
             shaped = float(np.dot(w, axes))
 
-        scalar = shaped \
-            - self.cfg.silence_penalty * sil \
-            - self.cfg.noise_penalty * noise
-        scalar = float(np.clip(scalar, 0.0, 1.0))
+        terms = [(self.cfg.silence_penalty, sil), (self.cfg.noise_penalty, noise),
+                 (self.cfg.quiet_section_penalty, quiet)]
+        if self.cfg.penalty_mode == "multiplicative":
+            scalar = shaped
+            for coeff, pen in terms:
+                scalar *= float(np.clip(1.0 - coeff * pen, 0.0, 1.0))
+        else:
+            scalar = shaped - sum(c * p for c, p in terms)
+        return RewardOutput(
+            scalar=float(np.clip(scalar, 0.0, 1.0)), axes=axes, penalties=penalties,
+            form_result=result,
+            meta={"n_segments": len(result.segments), "shaped": shaped,
+                  "segmentation_fallback": result.segmentation_fallback,
+                  "auc": result.auc, "contrast": result.contrast})
 
-        return RewardOutput(scalar=scalar, axes=axes, penalties=penalties,
-                            form_result=result,
-                            meta={"n_segments": len(result.segments)})
-
-    def set_phase(self, axis_weights: tuple[float, float, float],
-                  tau: float | None = None) -> None:
-        """Curriculum control: call between training phases to anneal axis
-        weights and (optionally) recalibrate the variation band."""
-        self.cfg.axis_weights = axis_weights
+    def set_phase(self, axis_weights: tuple[float, float, float] | None = None,
+                  tau: float | None = None, **metric_overrides) -> None:
+        """Curriculum control between phases: reward axis weights, and any
+        metric setting (e.g. copy_floor=0.3; tau only matters in absolute mode)."""
+        if axis_weights is not None:
+            self.cfg.axis_weights = tuple(axis_weights)
         if tau is not None:
-            self.cfg.metric.tau = tau
+            metric_overrides["tau"] = tau
+        for k, v in metric_overrides.items():
+            if not hasattr(self.cfg.metric, k):
+                raise AttributeError(f"FormAdherenceConfig has no setting {k!r}")
+            setattr(self.cfg.metric, k, v)
 
 
-# ---- cheap degeneracy detectors -----------------------------------------
+# ---- cheap degeneracy detectors (mono float audio) ----------------------
 
 def _silence_score(audio: np.ndarray) -> float:
-    """1.0 if effectively silent or clipping-degenerate, 0.0 if healthy."""
+    """1.0 if effectively silent; otherwise grows with the clipping fraction."""
     a = np.asarray(audio, dtype=np.float64)
     if a.size == 0:
         return 1.0
-    rms = float(np.sqrt(np.mean(a ** 2)))
-    if rms < 1e-3:
+    if float(np.sqrt(np.mean(a ** 2))) < 1e-3:
         return 1.0
-    clip_frac = float(np.mean(np.abs(a) > 0.999))
-    return float(np.clip(clip_frac * 2.0, 0.0, 1.0))
+    return float(np.clip(np.mean(np.abs(a) > 0.999) * 2.0, 0.0, 1.0))
 
 
 def _noise_score(audio: np.ndarray, sample_rate: int,
                  frame: int = 2048, hop: int = 1024) -> float:
-    """Mean spectral flatness in [0, 1]; ~1 for white noise, low for tonal/
-    musical content. High flatness is the signature of the 'inject noise to hit
-    the variation band' exploit, so we surface it as a penalty."""
-    a = np.asarray(audio, dtype=np.float64)
+    """Mean spectral flatness in [0, 1]: ~1 white noise, low for music."""
+    a = np.asarray(audio, dtype=np.float64).ravel()
     if len(a) < frame:
         return 0.0
-    flats = []
-    for s in range(0, len(a) - frame + 1, hop):
-        w = a[s:s + frame] * np.hanning(frame)
-        spec = np.abs(np.fft.rfft(w)) ** 2 + 1e-12
-        gmean = np.exp(np.mean(np.log(spec)))
-        amean = np.mean(spec)
-        flats.append(gmean / amean)
-    return float(np.clip(np.mean(flats), 0.0, 1.0)) if flats else 0.0
+    n = 1 + (len(a) - frame) // hop
+    idx = np.arange(frame)[None, :] + hop * np.arange(n)[:, None]
+    spec = np.abs(np.fft.rfft(a[idx] * np.hanning(frame)[None, :], axis=1)) ** 2 + 1e-12
+    flat = np.exp(np.mean(np.log(spec), axis=1)) / np.mean(spec, axis=1)
+    return float(np.clip(flat.mean(), 0.0, 1.0))
+
+
+def _quiet_section_score(audio, sample_rate, segments, n_frames,
+                         thresh_db=20.0, ramp_db=10.0) -> float:
+    """Fraction-weighted penalty for sections much quieter than the median
+    section: 0 until thresh_db below the median, 1 at thresh_db + ramp_db."""
+    a = np.asarray(audio, dtype=np.float64)
+    if len(segments) < 2 or len(a) == 0 or n_frames == 0:
+        return 0.0
+    spf = len(a) / n_frames                       # samples per embedding frame
+    levels = []
+    for s in segments:
+        x = a[int(s.start * spf):max(int(s.end * spf), int(s.start * spf) + 1)]
+        levels.append(20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-8))
+    levels = np.asarray(levels)
+    drop = np.median(levels) - levels
+    per_seg = np.clip((drop - thresh_db) / max(ramp_db, 1e-6), 0.0, 1.0)
+    return float(per_seg.mean())

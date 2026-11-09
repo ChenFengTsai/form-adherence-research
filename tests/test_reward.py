@@ -115,9 +115,13 @@ def test_reward_in_unit_interval():
 
 
 def test_curriculum_phase_changes_weights():
+    # v0.2: tau only matters in legacy absolute mode; the default relative mode
+    # is steered through its own settings (e.g. copy_floor). Both must work.
     r = _reward()
-    r.set_phase((2.0, 2.0, 0.1), tau=0.15)
+    r.set_phase((2.0, 2.0, 0.1), copy_floor=0.3)
     assert r.cfg.axis_weights == (2.0, 2.0, 0.1)
+    assert r.cfg.metric.copy_floor == 0.3
+    r.set_phase((1.0, 1.0, 1.0), tau=0.15)          # legacy knob still accepted
     assert r.cfg.metric.tau == 0.15
 
 

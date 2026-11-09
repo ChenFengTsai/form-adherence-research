@@ -1,26 +1,24 @@
 #!/usr/bin/env python
-"""Filter an existing manifest to a single SALAMI genre/class.
+"""Filter a manifest by genre (SALAMI via mirdata, or an entry's own `genre` field).
 
-SALAMI tags each track with a broad class (e.g. Classical, Jazz, Popular, World,
-Live...). This reads that field from mirdata for each manifest entry's salami_id
-and keeps only the tracks matching --genre, writing a new manifest.
+    # list what's there
+    python scripts/filter_manifest_by_genre.py --manifest data/msa/salami_manifest.json --list
+    # keep one genre
+    python scripts/filter_manifest_by_genre.py --manifest data/msa/salami_manifest.json \
+        --genre Popular --out data/msa/salami_popular.json
 
-    # first, find the exact genre strings present:
-    python scripts/filter_manifest_by_genre.py \
-        --manifest data/msa/manifest.json --data_home data/msa/salami --list
-
-    # then filter to one:
-    python scripts/filter_manifest_by_genre.py \
-        --manifest data/msa/manifest.json --data_home data/msa/salami \
-        --genre Popular --out data/msa/manifest_popular.json
+Fix: the old version fell back to SALAMI's `source` field (which archive the
+track came from: IA, Codaich, RWC, Isophonics) and treated it as a genre. Use
+--by source if you really want to filter by source.
 """
-import argparse, json
+import argparse
+import json
 from collections import Counter
 
 
-def get_genre(track):
-    # SALAMI's class/genre field name varies; try the common ones.
-    for attr in ("genre", "class", "source", "annotator_1_genre"):
+def salami_field(track, by):
+    attrs = ("genre", "class") if by == "genre" else ("source",)
+    for attr in attrs:
         v = getattr(track, attr, None)
         if v:
             return str(v)
@@ -31,48 +29,46 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--data_home", default="data/msa/salami")
-    ap.add_argument("--genre", default=None,
-                    help="genre/class to keep (case-insensitive substring)")
+    ap.add_argument("--by", choices=["genre", "source"], default="genre")
+    ap.add_argument("--genre", default=None, help="value to keep (case-insensitive substring)")
     ap.add_argument("--out", default=None)
-    ap.add_argument("--list", action="store_true",
-                    help="just list the genres present and their counts")
+    ap.add_argument("--list", action="store_true")
     args = ap.parse_args()
-
-    import mirdata
-    s = mirdata.initialize("salami", data_home=args.data_home)
 
     with open(args.manifest) as f:
         manifest = json.load(f)
 
-    # attach genre to each entry
-    tagged = []
-    counts = Counter()
+    salami = None
+    tagged, counts = [], Counter()
     for e in manifest:
-        sid = e.get("salami_id")
-        if sid is None:
-            continue
-        try:
-            g = get_genre(s.track(str(sid)))
-        except Exception:
+        if args.by == "genre" and e.get("genre"):
+            g = e["genre"]                                  # entries that carry a genre field
+        elif e.get("salami_id") is not None:
+            if salami is None:
+                import mirdata
+                salami = mirdata.initialize("salami", data_home=args.data_home)
+            try:
+                g = salami_field(salami.track(str(e["salami_id"])), args.by)
+            except Exception:
+                g = None
+        else:
             g = None
         counts[g] += 1
         tagged.append((e, g))
 
     if args.list or not args.genre:
-        print("genres present in manifest (count):")
+        print(f"{args.by} values in manifest (count):")
         for g, c in counts.most_common():
             print(f"  {g!r}: {c}")
         if not args.genre:
-            print("\nPass --genre <name> --out <path> to write a filtered manifest.")
             return
 
     want = args.genre.lower()
-    kept = [e for (e, g) in tagged if g and want in g.lower()]
+    kept = [e for e, g in tagged if g and want in g.lower()]
     out = args.out or args.manifest.replace(".json", f"_{args.genre}.json")
     with open(out, "w") as f:
         json.dump(kept, f, indent=2)
-    print(f"kept {len(kept)}/{len(manifest)} tracks with genre~{args.genre!r} "
-          f"-> {out}")
+    print(f"kept {len(kept)}/{len(manifest)} with {args.by}~{args.genre!r} -> {out}")
 
 
 if __name__ == "__main__":

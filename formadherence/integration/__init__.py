@@ -12,6 +12,7 @@ from .reward import FormAdherenceReward, RewardConfig, RewardOutput
 
 __all__ = [
     "EmbeddingExtractor", "ClapExtractor", "EncodecExtractor", "ConcatExtractor",
+    "ChromaMfccExtractor",
     "MusicGenerator", "GeneratedSong", "YuEGenerator", "CommandLineGenerator",
     "form_to_structure_tags", "build_structured_lyrics",
     "FormAdherenceReward", "RewardConfig", "RewardOutput",

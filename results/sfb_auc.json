@@ -1,0 +1,179 @@
+{
+  "settings": {
+    "mode": "real",
+    "ot_backend": "sinkhorn",
+    "no_debias": false,
+    "center": "none",
+    "metric": "cosine",
+    "per_song_z": false,
+    "auc": true,
+    "permutation": 1000,
+    "save_json": "results/sfb_auc.json",
+    "manifest": "data/msa/songformbench_manifest.json",
+    "limit": 0,
+    "rms_audio_dir": "/storage/ssd1/richtsai1103/form-adherence-research/songformbench/audio",
+    "frame_rate": 2.0,
+    "forms": "ABABCB,ABACABA,AABBA",
+    "dim": 32,
+    "seg_len": 120,
+    "variation_scale": 0.4,
+    "copy_paste": false,
+    "n_per_form": 10,
+    "shared_component": 0.0,
+    "features": [
+      "CLAP w=1.0s hop=0.5s + EnCodec 6.0kbps pool=8 @ 2.0 fps"
+    ]
+  },
+  "results": {
+    "sfb_cn": {
+      "songs": 100,
+      "ot_pooled": {
+        "n_same": 1454,
+        "n_diff": 5381,
+        "same_med": 0.018200268488543548,
+        "diff_med": 0.09316138375972388,
+        "gap": 0.07496111527118034,
+        "spread": 0.09298983946291603,
+        "gap_over_spread": 0.8061215688094023
+      },
+      "ot_auc": {
+        "songs": 100,
+        "median": 0.9186310570925955,
+        "mean": 0.9077552326869247,
+        "frac_above_half": 1.0,
+        "n_above_half": 100
+      },
+      "ot_perm": {
+        "observed_median": 0.9186310570925955,
+        "null_median": 0.48787281332997656,
+        "null_95": 0.5108369910859971,
+        "p_value": 0.000999000999000999,
+        "n_perm": 1000
+      },
+      "mean_pooled": {
+        "n_same": 1454,
+        "n_diff": 5381,
+        "same_med": 0.007857399350931549,
+        "diff_med": 0.06602972247481187,
+        "gap": 0.05817232312388032,
+        "spread": 0.06272493817412027,
+        "gap_over_spread": 0.9274193776388876
+      },
+      "mean_auc": {
+        "songs": 100,
+        "median": 0.9406749318817625,
+        "mean": 0.9160027021580719,
+        "frac_above_half": 1.0,
+        "n_above_half": 100
+      },
+      "mean_perm": {
+        "observed_median": 0.9406749318817625,
+        "null_median": 0.4869468417876469,
+        "null_95": 0.5099240629069804,
+        "p_value": 0.000999000999000999,
+        "n_perm": 1000
+      }
+    },
+    "sfb_hx": {
+      "songs": 187,
+      "ot_pooled": {
+        "n_same": 1997,
+        "n_diff": 8310,
+        "same_med": 0.02365207983741459,
+        "diff_med": 0.07329832692012103,
+        "gap": 0.04964624708270644,
+        "spread": 0.14456735265208628,
+        "gap_over_spread": 0.343412576712146
+      },
+      "ot_auc": {
+        "songs": 187,
+        "median": 0.8451612903225807,
+        "mean": 0.814569123917452,
+        "frac_above_half": 0.9679144385026738,
+        "n_above_half": 181
+      },
+      "ot_perm": {
+        "observed_median": 0.8451612903225807,
+        "null_median": 0.4888888888888889,
+        "null_95": 0.5079797872340426,
+        "p_value": 0.000999000999000999,
+        "n_perm": 1000
+      },
+      "mean_pooled": {
+        "n_same": 1997,
+        "n_diff": 8310,
+        "same_med": 0.012646559520370082,
+        "diff_med": 0.05261412030971485,
+        "gap": 0.03996756078934477,
+        "spread": 0.11333048674389212,
+        "gap_over_spread": 0.35266380598598107
+      },
+      "mean_auc": {
+        "songs": 187,
+        "median": 0.8469827586206896,
+        "mean": 0.8272983590687706,
+        "frac_above_half": 0.9732620320855615,
+        "n_above_half": 182
+      },
+      "mean_perm": {
+        "observed_median": 0.8469827586206896,
+        "null_median": 0.48894993894993893,
+        "null_95": 0.507375919117647,
+        "p_value": 0.000999000999000999,
+        "n_perm": 1000
+      }
+    },
+    "sfb_cn LOUDNESS-ONLY": {
+      "songs": 100,
+      "ot_pooled": {
+        "n_same": 1454,
+        "n_diff": 5381,
+        "same_med": 0.5963761927999973,
+        "diff_med": 3.574978591735617,
+        "gap": 2.97860239893562,
+        "spread": 6.565728956674021,
+        "gap_over_spread": 0.45365905577139154
+      },
+      "ot_auc": {
+        "songs": 100,
+        "median": 0.8746345029239766,
+        "mean": 0.8504731460300318,
+        "frac_above_half": 0.99,
+        "n_above_half": 99
+      },
+      "ot_perm": {
+        "observed_median": 0.8746345029239766,
+        "null_median": 0.4894176265024843,
+        "null_95": 0.5118785726299143,
+        "p_value": 0.000999000999000999,
+        "n_perm": 1000
+      }
+    },
+    "sfb_hx LOUDNESS-ONLY": {
+      "songs": 187,
+      "ot_pooled": {
+        "n_same": 1997,
+        "n_diff": 8310,
+        "same_med": 0.6870982649297704,
+        "diff_med": 2.1474013980442423,
+        "gap": 1.460303133114472,
+        "spread": 7.796803488413712,
+        "gap_over_spread": 0.18729510565253146
+      },
+      "ot_auc": {
+        "songs": 187,
+        "median": 0.7352941176470589,
+        "mean": 0.7282651526655186,
+        "frac_above_half": 0.9197860962566845,
+        "n_above_half": 172
+      },
+      "ot_perm": {
+        "observed_median": 0.7352941176470589,
+        "null_median": 0.48690168429298863,
+        "null_95": 0.5045292792792793,
+        "p_value": 0.000999000999000999,
+        "n_perm": 1000
+      }
+    }
+  }
+}

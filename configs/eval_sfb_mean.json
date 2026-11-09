@@ -1,0 +1,47 @@
+{
+  "mode": "evaluation",
+  "metric": {
+    "score_mode": "relative",
+    "ot_backend": "mean",
+    "sinkhorn_eps": 0.05,
+    "sinkhorn_max_iter": 200,
+    "sinkhorn_tol": 1e-06,
+    "sinkhorn_debias": true,
+    "max_frames_per_segment": 256,
+    "mp_window": 32,
+    "mp_exclusion_zone": 0.5,
+    "n_boundaries": null,
+    "contrast_temperature": 0.47885361661005105,
+    "comparison_floor": 0.001,
+    "chance_to_zero": true,
+    "chance_margin": 0.15,
+    "aggregate": "geometric",
+    "repeat_ratio": 1.8749319132624,
+    "ratio_temperature": 0.22202838321142002,
+    "copy_floor": 0.15012259560116345,
+    "copy_ramp": 0.15012259560116345,
+    "variation_method": "chroma_dtw",
+    "frame_rate": 2.0,
+    "chroma_fps": 10.0,
+    "chroma_method": "stft",
+    "note_change_threshold": 0.2,
+    "note_change_floor": 0.002,
+    "note_change_ramp": 0.024578073089700996,
+    "dtw_band": 0.2,
+    "edge_trim_s": 0.3,
+    "tau": 0.12,
+    "variation_floor": 0.005,
+    "variation_softness": 0.1,
+    "similarity_temperature": 0.3,
+    "combine": "geometric",
+    "axis_weights": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "evaluation": {
+    "discover_boundaries": true
+  },
+  "reward": null
+}

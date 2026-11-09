@@ -1,110 +1,74 @@
 #!/usr/bin/env python
 """Extract per-frame embeddings for every audio file in a directory and cache
-them as .npy, keyed by a hash of the file so nothing is ever re-extracted.
+them as .npy, keyed by audio content AND extractor settings.
 
-Run on your GPU box in the `fa` env (needs the `extract` extras: torch,
-transformers, encodec, soundfile).
+Run on the GPU box in the `fa` env (torch, transformers, encodec, soundfile).
 
-    python scripts/extract_embeddings.py \
-        --audio_dir outputs/wavs \
-        --cache_dir cache/embeddings \
-        --frame_rate 2.0
+    python scripts/extract_embeddings.py --audio_dir outputs/wavs \
+        --cache_dir cache/embeddings
 
-By default this picks up both .wav and .mp3 files. MP3 is lossy, so its
-embeddings won't be bit-identical to the WAV of the same song -- keep a song's
-pipeline on one format for comparable numbers.
+Writes cache/embeddings/<audiohash>_<spectag>.npy plus a .json sidecar saying
+which audio file and settings produced it, and an index.csv mapping file name
+-> .npy so you can find a song's embeddings later (run_evaluation.py --emb).
 
 FIRST-RUN SMOKE TEST (do this before trusting anything downstream):
-    the script prints the (T, d) shape of the first file. Confirm
-    T ~= duration_seconds * frame_rate and d = CLAP_dim + EnCodec_dim.
-    If sections of a song you know are different look identical in the
-    embeddings, the metric cannot work -- fix the extractor before proceeding.
+  * shape: T ~= duration_seconds * frame_rate, d = CLAP_dim + EnCodec_dim
+  * block balance: if CLAP and EnCodec parts have very different sizes, cosine
+    distance only "sees" the bigger block. Fix in ConcatExtractor (L2-normalize
+    each block before concatenating), then bump --extractor_version.
 """
 
 import argparse
-import hashlib
+import csv
 import os
-import glob
-import numpy as np
+import sys
 
-
-def file_key(path: str) -> str:
-    h = hashlib.sha1()
-    with open(path, "rb") as f:
-        while chunk := f.read(1 << 20):
-            h.update(chunk)
-    return h.hexdigest()[:16]
-
-
-def read_audio(path):
-    """Read wav or mp3 as (samples, sample_rate).
-
-    Tries soundfile first (fast, handles wav and -- with libsndfile >= 1.1.0 --
-    mp3). Falls back to librosa/audioread (ffmpeg backend) for mp3 when the
-    installed libsndfile lacks MP3 support.
-    """
-    import soundfile as sf
-    try:
-        wav, sr = sf.read(path)
-        return np.asarray(wav), sr
-    except Exception:
-        import librosa
-        wav, sr = librosa.load(path, sr=None, mono=False)
-        if wav.ndim == 2:
-            wav = wav.T
-        return np.asarray(wav), sr
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from formadherence.audio_io import (EmbeddingCache, add_extractor_args,
+                                    spec_from_args, index_audio_dir,
+                                    block_norm_report)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--audio_dir", required=True)
     ap.add_argument("--cache_dir", default="cache/embeddings")
-    ap.add_argument("--frame_rate", type=float, default=2.0,
-                    help="common frames/sec grid for the fused embedding")
-    ap.add_argument("--encodec_pool", type=int, default=8,
-                    help="time-pool EnCodec frames to lower T")
-    ap.add_argument("--glob", default=None,
-                    help="override file glob; by default matches *.wav and "
-                         "*.mp3 (case-insensitive)")
+    ap.add_argument("--clap_dim", type=int, default=512,
+                    help="width of the CLAP block, for the balance check")
+    add_extractor_args(ap)
     args = ap.parse_args()
 
-    # Imported here so the script fails loudly only when actually run without
-    # the extraction extras installed.
-    from formadherence.integration import (
-        ClapExtractor, EncodecExtractor, ConcatExtractor,
-    )
+    spec = spec_from_args(args)
+    cache = EmbeddingCache(args.cache_dir, spec, reuse_legacy=args.reuse_legacy_cache)
+    print(f"[extractor] {spec.describe()}  (cache tag {spec.tag()})")
 
-    extractor = ConcatExtractor(
-        [ClapExtractor(window_s=1.0, hop_s=0.5),
-         EncodecExtractor(bandwidth=6.0, pool=args.encodec_pool)],
-        target_frame_rate=args.frame_rate,
-    )
-
-    os.makedirs(args.cache_dir, exist_ok=True)
-
-    if args.glob:
-        patterns = [args.glob]
-    else:
-        patterns = ["*.wav", "*.WAV", "*.mp3", "*.MP3"]
-    paths = sorted({p for pat in patterns
-                    for p in glob.glob(os.path.join(args.audio_dir, pat))})
+    paths = sorted(index_audio_dir(args.audio_dir).values())
     if not paths:
-        want = args.glob or "*.wav / *.mp3"
-        raise SystemExit(f"no files matching {want} in {args.audio_dir}")
+        raise SystemExit(f"no audio files in {args.audio_dir}")
 
+    index_rows = []
     for i, path in enumerate(paths):
-        key = file_key(path)
-        out = os.path.join(args.cache_dir, f"{key}.npy")
-        if os.path.exists(out):
-            print(f"[skip] {os.path.basename(path)} -> {key}.npy (cached)")
-            continue
-        wav, sr = read_audio(path)
-        emb = extractor.extract(np.asarray(wav), sr)
-        np.save(out, emb)
-        print(f"[ok]   {os.path.basename(path)} -> {key}.npy  shape={emb.shape}")
+        existed = os.path.exists(cache.path_for(path))
+        emb, out = cache.get(path)
+        index_rows.append((os.path.basename(path), out))
+        print(f"[{'skip' if existed else 'ok  '}] {os.path.basename(path)} -> "
+              f"{os.path.basename(out)}  shape={emb.shape}")
         if i == 0:
-            print(f"       SMOKE TEST: first file embedding shape = {emb.shape} "
-                  f"(expect T ~= duration*{args.frame_rate}, d = clap+encodec)")
+            print(f"       SMOKE TEST: T={emb.shape[0]} (expect ~duration*"
+                  f"{spec.frame_rate}), d={emb.shape[1]}")
+            dims = getattr(cache._extractor, "block_dims", None) if cache._extractor else None
+            if dims and len(dims) > 1:
+                print(f"       blocks: {dict(zip(spec.sources, dims))}")
+                print("       " + block_norm_report(emb, dims[0]))
+            elif set(spec.sources) == {"clap", "encodec"} and emb.shape[1] > args.clap_dim:
+                print("       " + block_norm_report(emb, args.clap_dim))
+
+    idx_path = os.path.join(args.cache_dir, f"index_{spec.tag()}.csv")
+    with open(idx_path, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["audio_file", "emb"])
+        w.writerows(index_rows)
+    print(f"[index] {idx_path}")
 
 
 if __name__ == "__main__":

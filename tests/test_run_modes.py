@@ -62,10 +62,14 @@ def test_both_modes_share_metric_core():
 
     ev_res = ev.evaluate(song)
     rl_out = rl.evaluate(song)
-    # RL may gate variation by noise; distinctness & similarity are untouched by
-    # shaping, so those must match exactly.
-    assert abs(ev_res.distinctness - rl_out.axes[0]) < 1e-9
-    assert abs(ev_res.similarity - rl_out.axes[1]) < 1e-9
+    # v0.2: the reward uses the metric's GRADED axes (raw_axes: not clipped at
+    # chance, so weak rollouts don't tie). Same metric core => the reward's
+    # distinctness & similarity must equal the evaluation result's raw_axes,
+    # and the reported (chance->0) axes must be the rescaled version of them.
+    assert abs(ev_res.form_result.raw_axes[0] - rl_out.axes[0]) < 1e-9
+    assert abs(ev_res.form_result.raw_axes[1] - rl_out.axes[1]) < 1e-9
+    assert abs(ev_res.distinctness - rl_out.form_result.distinctness) < 1e-9
+    assert abs(ev_res.similarity - rl_out.form_result.similarity) < 1e-9
 
 
 def test_rl_config_metric_pinned_to_shared_core():

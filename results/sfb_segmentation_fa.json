@@ -1,0 +1,74 @@
+{
+  "settings": {
+    "manifest": "data/msa/songformbench_manifest.json",
+    "limit": 0,
+    "frame_rate": 2.0,
+    "kernels": "16,24",
+    "tolerances": "0.5,3",
+    "features": "embedding",
+    "audio_dir": "",
+    "form_aware_weights": "0,2,5",
+    "form_aware_kernel": 24,
+    "min_len_s": 3.0,
+    "save_json": "results/sfb_segmentation_fa.json"
+  },
+  "n_songs": 287,
+  "results": {
+    "foote k=16 [embedding]": {
+      "f": {
+        "0.5": 0.38750174098862356,
+        "3.0": 0.6268608162464485
+      },
+      "median_dev_s": 1.5,
+      "fallback_rate": 0.0
+    },
+    "foote k=24 [embedding]": {
+      "f": {
+        "0.5": 0.3943290682581521,
+        "3.0": 0.6568833551386328
+      },
+      "median_dev_s": 1.5,
+      "fallback_rate": 0.05226480836236934
+    },
+    "form-aware w=0 [embedding]": {
+      "f": {
+        "0.5": 0.34919117627152063,
+        "3.0": 0.5586714664830056
+      },
+      "median_dev_s": 2.5,
+      "fallback_rate": 0.0
+    },
+    "form-aware w=2 [embedding]": {
+      "f": {
+        "0.5": 0.40386394110774104,
+        "3.0": 0.5970699423097455
+      },
+      "median_dev_s": 1.5,
+      "fallback_rate": 0.0
+    },
+    "form-aware w=5 [embedding]": {
+      "f": {
+        "0.5": 0.3921618835151321,
+        "3.0": 0.5756936531506116
+      },
+      "median_dev_s": 1.75,
+      "fallback_rate": 0.0
+    },
+    "equal cuts": {
+      "f": {
+        "0.5": 0.09023587034449916,
+        "3.0": 0.3531894812049557
+      },
+      "median_dev_s": 5.0,
+      "fallback_rate": 0.0
+    },
+    "random cuts": {
+      "f": {
+        "0.5": 0.06675223692581245,
+        "3.0": 0.2635621387818303
+      },
+      "median_dev_s": 7.8125,
+      "fallback_rate": 0.0
+    }
+  }
+}

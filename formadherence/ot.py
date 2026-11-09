@@ -10,6 +10,16 @@ Two backends, selectable via config (Section 6 of the proposal):
 Both operate on point clouds X (n, d) and Y (m, d) with uniform marginals by
 default. The ground metric is cosine distance in [0, 2], which is scale
 -invariant -- appropriate for normalized foundation-model embeddings.
+
+IMPORTANT: OT compares the two segments as SETS of frames. Frame order is
+ignored -- a segment and its time-reversed or shuffled version are at distance
+0. What OT preserves is the distribution of frames (the segment's palette of
+sounds), not its temporal shape.
+
+Use segment_distance(a, b, cfg) everywhere so that scripts, calibration and the
+metric all measure the same thing. With the sinkhorn backend it returns the
+DEBIASED Sinkhorn divergence (cfg.sinkhorn_debias=True), which is ~0 for
+identical inputs; plain Sinkhorn cost is not.
 """
 
 from __future__ import annotations
@@ -121,6 +131,48 @@ def sinkhorn_distance(
     if return_plan:
         return cost, P
     return cost
+
+
+def sinkhorn_divergence(
+    X: np.ndarray,
+    Y: np.ndarray,
+    eps: float = 0.05,
+    max_iter: int = 200,
+    tol: float = 1e-6,
+    metric: str = "cosine",
+) -> float:
+    """Debiased Sinkhorn divergence S(X,Y) - S(X,X)/2 - S(Y,Y)/2.
+
+    Plain entropic OT has S(X,X) > 0, so an exact copy does not measure zero.
+    Subtracting the self-terms removes that bias (Feydy et al. 2019). Clipped
+    at 0 to absorb tiny negative values from finite iterations.
+    """
+    kw = dict(eps=eps, max_iter=max_iter, tol=tol, metric=metric)
+    sxy = sinkhorn_distance(X, Y, **kw)
+    sxx = sinkhorn_distance(X, X, **kw)
+    syy = sinkhorn_distance(Y, Y, **kw)
+    return float(max(sxy - 0.5 * sxx - 0.5 * syy, 0.0))
+
+
+def segment_distance(a: np.ndarray, b: np.ndarray, cfg, metric: str = "cosine") -> float:
+    """The one distance used everywhere: exact W1, or (debiased) Sinkhorn,
+    according to a FormAdherenceConfig."""
+    if cfg.ot_backend == "exact":
+        return wasserstein_distance(a, b, metric=metric)
+    if cfg.ot_backend == "mean":
+        # NOT optimal transport: distance between the segments' mean vectors.
+        # A baseline (it beat OT on per-song AUC with CLAP+EnCodec in early tests).
+        ma, mb = np.asarray(a, float).mean(0), np.asarray(b, float).mean(0)
+        if metric == "cosine":
+            ma = ma / (np.linalg.norm(ma) + 1e-12)
+            mb = mb / (np.linalg.norm(mb) + 1e-12)
+            return float(max(1.0 - ma @ mb, 0.0))
+        return float(np.linalg.norm(ma - mb))
+    kw = dict(eps=cfg.sinkhorn_eps, max_iter=cfg.sinkhorn_max_iter,
+              tol=cfg.sinkhorn_tol, metric=metric)
+    if getattr(cfg, "sinkhorn_debias", True):
+        return sinkhorn_divergence(a, b, **kw)
+    return sinkhorn_distance(a, b, **kw)
 
 
 def _logsumexp(M: np.ndarray, axis: int) -> np.ndarray:

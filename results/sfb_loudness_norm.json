@@ -1,0 +1,141 @@
+{
+  "settings": {
+    "manifest": "data/msa/songformbench_manifest.json",
+    "audio_dir": "/storage/ssd1/richtsai1103/form-adherence-research/songformbench/audio",
+    "limit": 0,
+    "distance": "mean",
+    "ot_backend": "sinkhorn",
+    "match_db": 1.0,
+    "min_comparisons": 5,
+    "permutation": 0,
+    "normalize": true,
+    "norm_cache": "/storage/ssd1/richtsai1103/form-adherence-research/cache/loudnorm",
+    "save_json": "results/sfb_loudness_norm.json",
+    "sources": "clap,encodec",
+    "clap_window": 1.0,
+    "clap_hop": null,
+    "encodec_bandwidth": 6.0,
+    "encodec_pool": 8,
+    "frame_rate": 2.0,
+    "extractor_version": "t2",
+    "reuse_legacy_cache": false
+  },
+  "results": {
+    "sfb_cn": {
+      "songs": 100,
+      "loudness_diff_auc": {
+        "songs": 100,
+        "median": 0.8548340006673341,
+        "frac_above_half": 0.99
+      },
+      "mean": {
+        "raw_auc": {
+          "songs": 100,
+          "median": 0.9406749318817625,
+          "frac_above_half": 1.0
+        },
+        "matched_auc": {
+          "songs": 100,
+          "median": 0.9316233766233766,
+          "frac_above_half": 0.98
+        },
+        "matched_auc_loudness_check": {
+          "songs": 100,
+          "median": 0.6690927077444884,
+          "frac_above_half": 0.9
+        },
+        "matched_share_of_comparisons": 0.24178240740740742,
+        "matched_excess": {
+          "median_excess": 0.1693772474664923,
+          "songs_embedding_better": 84,
+          "songs_compared": 95,
+          "sign_test_p": 2.259222903172665e-15
+        },
+        "residual_auc": {
+          "songs": 100,
+          "median": 0.7305946368446369,
+          "frac_above_half": 0.92
+        },
+        "added_value": {
+          "songs": 100,
+          "loudness_only_median_auc": 0.8548340006673341,
+          "loudness_plus_embedding_median_auc": 0.9391933497536946,
+          "frac_songs_improved": 0.85,
+          "mean_coef_loudness": 0.5527314784691765,
+          "mean_coef_embedding": 2.754066689592716
+        }
+      },
+      "normalized": {
+        "distance": "mean",
+        "raw_auc": {
+          "songs": 100,
+          "median": 0.9453179875471742,
+          "frac_above_half": 1.0
+        },
+        "loudness_diff_auc_after": {
+          "songs": 100,
+          "median": 0.696707806082806,
+          "frac_above_half": 0.88
+        }
+      }
+    },
+    "sfb_hx": {
+      "songs": 187,
+      "loudness_diff_auc": {
+        "songs": 187,
+        "median": 0.7181981981981982,
+        "frac_above_half": 0.9037433155080213
+      },
+      "mean": {
+        "raw_auc": {
+          "songs": 187,
+          "median": 0.8469827586206896,
+          "frac_above_half": 0.9732620320855615
+        },
+        "matched_auc": {
+          "songs": 185,
+          "median": 0.8470209339774557,
+          "frac_above_half": 0.9675675675675676
+        },
+        "matched_auc_loudness_check": {
+          "songs": 185,
+          "median": 0.6191646191646192,
+          "frac_above_half": 0.8
+        },
+        "matched_share_of_comparisons": 0.39037433155080214,
+        "matched_excess": {
+          "median_excess": 0.203125,
+          "songs_embedding_better": 159,
+          "songs_compared": 180,
+          "sign_test_p": 1.00109965782492e-27
+        },
+        "residual_auc": {
+          "songs": 187,
+          "median": 0.7446808510638298,
+          "frac_above_half": 0.9144385026737968
+        },
+        "added_value": {
+          "songs": 187,
+          "loudness_only_median_auc": 0.7181981981981982,
+          "loudness_plus_embedding_median_auc": 0.8497615262321144,
+          "frac_songs_improved": 0.8021390374331551,
+          "mean_coef_loudness": -0.1717946621036301,
+          "mean_coef_embedding": 1.552802373012369
+        }
+      },
+      "normalized": {
+        "distance": "mean",
+        "raw_auc": {
+          "songs": 187,
+          "median": 0.8448275862068966,
+          "frac_above_half": 0.9679144385026738
+        },
+        "loudness_diff_auc_after": {
+          "songs": 187,
+          "median": 0.6153846153846154,
+          "frac_above_half": 0.8074866310160428
+        }
+      }
+    }
+  }
+}

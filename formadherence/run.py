@@ -86,8 +86,8 @@ class RunConfig:
     def from_json(cls, path: str) -> "RunConfig":
         with open(path) as f:
             d = json.load(f)
-        metric = FormAdherenceConfig(**{**d["metric"],
-                                        "axis_weights": tuple(d["metric"]["axis_weights"])})
+        # from_dict handles old files (no score_mode -> legacy "absolute").
+        metric = FormAdherenceConfig.from_dict(d["metric"])
         evaluation = EvaluationConfig(**d.get("evaluation", {}))
         reward = None
         if d.get("reward") is not None:

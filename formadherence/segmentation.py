@@ -1,16 +1,18 @@
-"""Matrix-Profile segmentation in embedding space.
+"""Segmentation in embedding space.
 
-The Matrix Profile (Yeh et al. 2016) stores, for every length-w subsequence of a
-series, the z-normalized Euclidean distance to its nearest non-trivial
-neighbour. Low values mark motifs (repeated material); high values mark discords
-(novel material). We compute an MP over the per-frame embedding sequence and
-derive boundaries from a corrected arc-curve (the FLUSS/regime-change idea of
-Gharghabi et al. 2017): counting how many nearest-neighbour arcs cross each
-frame index, section boundaries appear as valleys where few arcs cross.
+WHAT THE METRIC ACTUALLY USES: Foote (2000) checkerboard novelty on the cosine
+self-similarity matrix. Boundaries are the n highest novelty peaks, where n is
+len(target_form) - 1 unless cfg.n_boundaries is set. So the segmenter is told
+HOW MANY sections to find (from the target form) but not where they are.
 
-Two modes, per the design decision for this build:
+Why not the Matrix Profile arc-curve (FLUSS)? Its long recurrence arcs wash out
+the valleys on forms with returning sections (ABACA), so boundaries were missed.
+matrix_profile() and _corrected_arc_curve() are kept only for motif/discord
+diagnostics; segment_boundaries() does not call them.
+
+Two modes:
   * supply boundaries explicitly (segment_boundaries with boundaries=...)
-  * discover them from the MP arc-curve (boundaries=None)
+  * discover them from Foote novelty (boundaries=None)
 """
 
 from __future__ import annotations
@@ -111,6 +113,12 @@ def _foote_novelty(embeddings: np.ndarray, kernel_size: int = 32) -> np.ndarray:
     sign = np.sign(gx) * np.sign(gy)
     kernel = sign * taper
 
+    # KNOWN LIMITATION: novelty is 0 within kernel_size/2 frames of either end
+    # (16 frames = 8 s at the default 32-frame kernel and 2 fps), so a shorter
+    # intro/outro cannot get its own boundary. Cropping the kernel at the edges
+    # was tried and benchmarked: it found some short intros but cut overall
+    # boundary accuracy from ~0.83 to 0.39-0.62 on synthetic songs, so it was
+    # NOT adopted. If short intros matter, lower cfg.mp_window (e.g. 16).
     nov = np.zeros(T)
     for i in range(T):
         lo, hi = i - half, i + half
@@ -191,6 +199,108 @@ def segment_boundaries(
         min_gap = max(window, T // (n_boundaries + 1) // 2)
     nov = _foote_novelty(embeddings, kernel_size=window)
     return _peaks(nov, n_boundaries, min_gap)
+
+
+# ---------------------------------------------------------------------------
+# form-aware segmentation
+# ---------------------------------------------------------------------------
+
+def _align_to_templates(En, letters, templates, bonus, min_len):
+    """Exact DP: cut [0, T) into len(letters) segments, in order, each at least
+    min_len frames, maximising  sum_t cos(frame_t, template of its letter)
+    + sum over boundaries of bonus[b].  O(K*T) with a running max."""
+    T, K = len(En), len(letters)
+    if K * min_len > T:
+        return None, -np.inf
+    P = {L: np.concatenate([[0.0], np.cumsum(En @ templates[L])]) for L in set(letters)}
+    NEG = -np.inf
+    best = np.full((K + 1, T + 1), NEG)
+    arg = np.zeros((K + 1, T + 1), dtype=int)
+    best[0, 0] = 0.0
+    for k in range(1, K + 1):
+        Pk = P[letters[k - 1]]
+        # cand[s] = best[k-1][s] + bonus at s (if s is an interior cut) - Pk[s]
+        b = bonus if k > 1 else np.zeros(T + 1)
+        cand = best[k - 1] + b - Pk
+        pm = np.maximum.accumulate(cand)               # best start s <= e - min_len
+        am = np.maximum.accumulate(np.where(cand == pm, np.arange(T + 1), 0))
+        e = np.arange(min_len, T + 1)
+        ok = np.isfinite(pm[e - min_len])
+        best[k, e[ok]] = pm[e[ok] - min_len] + Pk[e[ok]]
+        arg[k, e[ok]] = am[e[ok] - min_len]
+    if not np.isfinite(best[K, T]):
+        return None, -np.inf
+    cuts, e = [], T
+    for k in range(K, 0, -1):
+        s = arg[k, e]
+        cuts.append(s)
+        e = s
+    cuts = sorted(cuts)[1:]                       # drop the 0 start
+    return cuts, float(best[K, T])
+
+
+def form_aware_boundaries(
+    embeddings: np.ndarray,
+    letters,
+    kernel_size: int = 24,
+    novelty_weight: float = 2.0,
+    min_len: int = 6,
+    n_iter: int = 15,
+    inits: list[list[int]] | None = None,
+) -> list[int]:
+    """Cut a song so that it best realises the given letter sequence.
+
+    Alternates two steps until the cuts stop moving (like k-means with the
+    section order fixed by the form):
+      1. a template per LETTER = mean of the (L2-normalised) frames currently
+         assigned to it -- repeats of a letter share one template;
+      2. an exact dynamic-programming alignment of the letter sequence to the
+         frames: every frame is scored by its cosine similarity to its letter's
+         template, plus a bonus of novelty_weight x Foote novelty at each cut
+         (novelty_weight is in frames of similarity, so 2 = "worth two
+         well-matched frames").
+    Started from Foote cuts and from equal cuts; the higher objective wins.
+    Same-letter sections are pulled together and different letters apart, so
+    the cuts follow the repeat pattern the form asks for, not novelty alone.
+
+    Caveat: the cuts are fitted to the form, so they are the song's BEST case
+    for that form. Compare forms fairly by fitting each form separately
+    (validate_human.py --also_form_aware does this).
+    """
+    E = np.asarray(embeddings, dtype=np.float64)
+    T, K = len(E), len(letters)
+    letters = [str(x) for x in letters]
+    if K <= 1:
+        return []
+    min_len = max(1, min(min_len, T // K))
+    En = E / (np.linalg.norm(E, axis=1, keepdims=True) + 1e-12)
+    nov = _foote_novelty(E, kernel_size=kernel_size) if novelty_weight > 0 else np.zeros(T)
+    bonus = np.concatenate([novelty_weight * nov, [0.0]])     # index = cut position
+    if inits is None:
+        inits = []
+        f = _peaks(nov, K - 1, max(min_len, T // K // 2)) if novelty_weight > 0 else []
+        if len(f) == K - 1:
+            inits.append(f)
+        inits.append([round(T * k / K) for k in range(1, K)])
+    best_cuts, best_obj = None, -np.inf
+    for b in inits:
+        cuts = sorted(int(x) for x in b)
+        obj = -np.inf
+        for _ in range(n_iter):
+            edges = [0] + cuts + [T]
+            templates = {}
+            for L in set(letters):
+                fr = [En[edges[k]:edges[k + 1]] for k in range(K) if letters[k] == L
+                      and edges[k + 1] > edges[k]]
+                m = np.vstack(fr).mean(0) if fr else En.mean(0)
+                templates[L] = m / (np.linalg.norm(m) + 1e-12)
+            new, obj = _align_to_templates(En, letters, templates, bonus, min_len)
+            if new is None or new == cuts:
+                break
+            cuts = new
+        if new is not None and obj > best_obj:
+            best_cuts, best_obj = cuts, obj
+    return best_cuts if best_cuts is not None else [round(T * k / K) for k in range(1, K)]
 
 
 def boundaries_to_segments(

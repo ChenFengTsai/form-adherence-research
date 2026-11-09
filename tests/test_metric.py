@@ -53,8 +53,24 @@ def test_verse_equals_chorus_tanks_distinctness():
 
 def test_drifted_repeats_tank_similarity():
     # Huge within-letter variation => repeats no longer cohere.
-    r = _score("ABABA", variation_scale=3.0)
-    assert r.similarity < 0.6, r.similarity
+    #
+    # v0.2 change: the default (relative) metric judges coherence AGAINST THE
+    # SONG'S OWN CONTRAST: repeats "drift" when they are about as far apart as
+    # different letters. At variation_scale=3.0 the repeats still share their
+    # theme (per-song AUC ~0.99), so relative similarity stays high; only the
+    # legacy absolute metric called that "drifted", because the absolute
+    # distance passed a fixed tau -- the absolute-threshold idea that failed on
+    # real audio. So: similarity must fall as drift grows, and tank once
+    # repeats are as different as letters; the old case is kept for legacy mode.
+    sims = [_score("ABABA", variation_scale=v).similarity for v in (0.4, 3.0, 10.0, 30.0)]
+    assert all(a >= b for a, b in zip(sims, sims[1:])), sims     # never rises
+    assert sims[0] > sims[1] > sims[2], sims                      # and really falls
+    assert sims[2] < 0.6 and sims[3] < 0.3, sims
+    legacy = score_form_adherence(
+        *make_song_embeddings("ABABA", variation_scale=3.0)[:1], "ABABA",
+        boundaries=make_song_embeddings("ABABA", variation_scale=3.0)[1],
+        config=FormAdherenceConfig(score_mode="absolute", mp_window=24))
+    assert legacy.similarity < 0.6, legacy.similarity
 
 
 def test_geometric_mean_blocks_trading():

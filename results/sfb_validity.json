@@ -1,0 +1,114 @@
+{
+  "settings": {
+    "manifest": "data/msa/songformbench_manifest.json",
+    "config": "configs/eval_sfb.json",
+    "limit": 0,
+    "n_wrong": 5,
+    "margins": "0,0.05,0.1,0.15",
+    "also_discovered": true,
+    "backend": null,
+    "save_json": "results/sfb_validity.json"
+  },
+  "results": {
+    "annotated": {
+      "geometric margin=0.0": {
+        "pairwise": 0.8320557491289199,
+        "beats_all": 0.5574912891986062,
+        "own_median": 0.666303472847505,
+        "wrong_median": 0.3013266645122932
+      },
+      "geometric margin=0.05": {
+        "pairwise": 0.837630662020906,
+        "beats_all": 0.5853658536585366,
+        "own_median": 0.605742490411087,
+        "wrong_median": 0.2529333270419503
+      },
+      "geometric margin=0.1": {
+        "pairwise": 0.8393728222996516,
+        "beats_all": 0.5574912891986062,
+        "own_median": 0.5165008102636459,
+        "wrong_median": 0.2042790747189389
+      },
+      "geometric margin=0.15": {
+        "pairwise": 0.8439024390243902,
+        "beats_all": 0.5714285714285714,
+        "own_median": 0.430960768025072,
+        "wrong_median": 0.15789113196001717
+      },
+      "mean margin=0.0": {
+        "pairwise": 0.8655052264808363,
+        "beats_all": 0.5993031358885017,
+        "own_median": 0.7632106532494985,
+        "wrong_median": 0.6118792272775622
+      },
+      "mean margin=0.05": {
+        "pairwise": 0.8662020905923344,
+        "beats_all": 0.5958188153310104,
+        "own_median": 0.7401118218719706,
+        "wrong_median": 0.5814912604835635
+      },
+      "mean margin=0.1": {
+        "pairwise": 0.8630662020905924,
+        "beats_all": 0.5818815331010453,
+        "own_median": 0.7114367390844175,
+        "wrong_median": 0.5440268929982515
+      },
+      "mean margin=0.15": {
+        "pairwise": 0.8682926829268293,
+        "beats_all": 0.6062717770034843,
+        "own_median": 0.6817396569377553,
+        "wrong_median": 0.4954532494096727
+      }
+    },
+    "discovered": {
+      "geometric margin=0.0": {
+        "pairwise": 0.7310104529616724,
+        "beats_all": 0.40069686411149824,
+        "own_median": 0.3843258760950461,
+        "wrong_median": 0.24488649771180362
+      },
+      "geometric margin=0.05": {
+        "pairwise": 0.7386759581881533,
+        "beats_all": 0.40418118466898956,
+        "own_median": 0.28704076166663506,
+        "wrong_median": 0.18575778015470773
+      },
+      "geometric margin=0.1": {
+        "pairwise": 0.7393728222996516,
+        "beats_all": 0.3832752613240418,
+        "own_median": 0.23160919310210426,
+        "wrong_median": 0.13643985537928513
+      },
+      "geometric margin=0.15": {
+        "pairwise": 0.7348432055749129,
+        "beats_all": 0.3693379790940767,
+        "own_median": 0.16407105831429253,
+        "wrong_median": 0.0964068663451879
+      },
+      "mean margin=0.0": {
+        "pairwise": 0.7428571428571429,
+        "beats_all": 0.40418118466898956,
+        "own_median": 0.6220031651160997,
+        "wrong_median": 0.5389927781283509
+      },
+      "mean margin=0.05": {
+        "pairwise": 0.7428571428571429,
+        "beats_all": 0.39372822299651566,
+        "own_median": 0.5798117923389169,
+        "wrong_median": 0.4973743835662351
+      },
+      "mean margin=0.1": {
+        "pairwise": 0.748432055749129,
+        "beats_all": 0.397212543554007,
+        "own_median": 0.5379956401482382,
+        "wrong_median": 0.45352779164401724
+      },
+      "mean margin=0.15": {
+        "pairwise": 0.7466898954703832,
+        "beats_all": 0.41114982578397213,
+        "own_median": 0.4782872697922584,
+        "wrong_median": 0.39865753502776174
+      }
+    }
+  }
+}

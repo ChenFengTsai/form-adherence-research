@@ -1,109 +1,110 @@
 #!/usr/bin/env python
-"""Evaluation mode (metrics only): score how well a generated song realizes a
-target form. No RL, no reward shaping.
+"""Score how well ONE song realizes a target form (metrics only, no RL).
 
-Two ways to use it:
+  A) from audio (wav/mp3):
+       python scripts/run_evaluation.py --audio outputs/wavs/song.wav --form ABACA
+  B) from cached embeddings (fast):
+       python scripts/run_evaluation.py --emb cache/embeddings/<key>.npy --form ABACA
 
-  A) Score an audio file you already have (wav or mp3), or one generated
-     separately with YuE's infer.py:
-       python scripts/run_evaluation.py \
-           --audio outputs/wavs/song.wav --form ABACA
-       python scripts/run_evaluation.py \
-           --audio outputs/wavs/song.mp3 --form ABACA
+Loads configs/eval_sfb.json (from scripts/calibrate.py) if present.
+Use the SAME extractor flags (and --ot_backend in calibration) that the config
+was calibrated with. --wav is an alias of --audio.
 
-  B) Score a cached embedding array directly (fastest for the AI test corpus):
-       python scripts/run_evaluation.py \
-           --emb cache/embeddings/<key>.npy --form ABACA
-
-Loads calibration from configs/eval_baseline.json if present, so the metric uses
-your fitted tau/floor/temperature rather than the synthetic-data defaults.
-
-NOTE: --wav is kept as an alias of --audio for backwards compatibility; both
-accept wav or mp3. MP3 is lossy, so its embeddings won't be bit-identical to
-the WAV of the same song -- keep a song's pipeline on one format for comparable
-numbers.
+Output: overall + the three axes, the per-song AUC/contrast, and whether
+boundary discovery failed (segmentation_fallback=true means the song was cut
+into equal pieces -- treat that score with suspicion).
 """
 
 import argparse
-import os
 import json
+import os
+import sys
+
 import numpy as np
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from formadherence.config import FormAdherenceConfig
+from formadherence.metric import score_form_adherence
+from formadherence.audio_io import (EmbeddingCache, add_extractor_args, spec_from_args,
+                                    read_audio)
 
-def read_audio(path):
-    """Read wav or mp3 as (samples, sample_rate).
 
-    Tries soundfile first (fast, handles wav and -- with libsndfile >= 1.1.0 --
-    mp3). Falls back to librosa/audioread (ffmpeg backend) for mp3 when the
-    installed libsndfile lacks MP3 support.
-    """
-    import soundfile as sf
-    try:
-        wav, sr = sf.read(path)
-        return np.asarray(wav), sr
-    except Exception:
-        import librosa
-        wav, sr = librosa.load(path, sr=None, mono=False)
-        if wav.ndim == 2:
-            wav = wav.T
-        return np.asarray(wav), sr
+def load_metric_config(path):
+    if os.path.exists(path):
+        with open(path) as f:
+            d = json.load(f)
+        if d.get("mode", "evaluation") != "evaluation":
+            print(f"[cfg] note: {path} has mode={d.get('mode')}; using its metric part")
+        print(f"[cfg] loaded {path}")
+        return FormAdherenceConfig.from_dict(d["metric"])
+    print("[cfg] no config file -> defaults (relative mode, uncalibrated copy "
+          "threshold; run scripts/calibrate.py)")
+    return FormAdherenceConfig()
+
+
+def r4(x):
+    return None if x is None else round(float(x), 4)
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--form", required=True,
-                    help="target letter form, e.g. ABACA")
+    ap.add_argument("--form", required=True, help="target letter form, e.g. ABACA")
     src = ap.add_mutually_exclusive_group(required=True)
-    src.add_argument("--audio", "--wav", dest="audio",
-                     help="path to an audio file to score (wav or mp3)")
-    src.add_argument("--emb", help="path to a cached (T,d) .npy embedding array")
-    ap.add_argument("--config", default="configs/eval_baseline.json")
+    src.add_argument("--audio", "--wav", dest="audio", help="wav or mp3 to score")
+    src.add_argument("--emb", help="cached (T, d) .npy embedding array")
+    ap.add_argument("--config", default="configs/eval_sfb.json")
+    ap.add_argument("--cache_dir", default="cache/embeddings")
     ap.add_argument("--boundaries", default=None,
                     help="comma-separated interior frame indices (optional)")
+    ap.add_argument("--audio_for_variation", default="",
+                    help="with --emb: the song's audio, so Axis 3 uses note changes")
+    ap.add_argument("--verbose", action="store_true", help="print per-pair details")
+    ap.add_argument("--json_out", default="")
+    add_extractor_args(ap)
     args = ap.parse_args()
 
-    from formadherence import RunConfig, build_runner
+    cfg = load_metric_config(args.config)
+    boundaries = [int(x) for x in args.boundaries.split(",")] if args.boundaries else None
 
-    if os.path.exists(args.config):
-        cfg = RunConfig.from_json(args.config)
-        print(f"[cfg] loaded {args.config}")
-    else:
-        cfg = RunConfig(mode="evaluation")
-        print("[cfg] no config file -> DEFAULTS (synthetic-calibrated; run "
-              "scripts/calibrate.py before trusting real-audio numbers)")
-    assert cfg.mode == "evaluation", "use mode=evaluation for this script"
-
-    boundaries = ([int(x) for x in args.boundaries.split(",")]
-                  if args.boundaries else None)
-
+    wav = sr = None
     if args.emb:
-        # Score precomputed embeddings; no extractor needed.
-        from formadherence.run import EvaluationRunner
-        runner = EvaluationRunner(cfg, extractor=None)  # extractor unused here
         emb = np.load(args.emb)
-        res = runner.evaluate_from_embeddings(emb, args.form,
-                                              boundaries=boundaries)
+        if args.audio_for_variation:
+            wav, sr = read_audio(args.audio_for_variation)
     else:
-        from formadherence.integration import (
-            GeneratedSong, ClapExtractor, EncodecExtractor, ConcatExtractor)
-        extractor = ConcatExtractor(
-            [ClapExtractor(window_s=1.0, hop_s=0.5),
-             EncodecExtractor(bandwidth=6.0, pool=8)],
-            target_frame_rate=2.0)
-        runner = build_runner(cfg, extractor)
+        emb, path = EmbeddingCache(args.cache_dir, spec_from_args(args),
+                                   reuse_legacy=args.reuse_legacy_cache).get(args.audio)
+        print(f"[emb] {path} shape={emb.shape}")
         wav, sr = read_audio(args.audio)
-        song = GeneratedSong(audio=np.asarray(wav), sample_rate=sr,
-                             target_form=args.form)
-        res = runner.evaluate(song, boundaries=boundaries)
 
-    print(json.dumps({
-        "form": res.target_form,
-        "overall": round(res.overall, 4),
-        "distinctness": round(res.distinctness, 4),
-        "similarity": round(res.similarity, 4),
-        "variation": round(res.variation, 4),
-        "n_segments": len(res.form_result.segments),
-    }, indent=2))
+    # audio -> Axis 3 measured on notes (chroma + DTW); without it, embedding fallback
+    r = score_form_adherence(emb, args.form, boundaries=boundaries, config=cfg,
+                             audio=wav, sample_rate=sr)
+    out = {
+        "form": r.target_form,
+        "score_mode": r.score_mode,
+        "overall": r4(r.overall),
+        "distinctness": r4(r.distinctness),
+        "similarity": r4(r.similarity),
+        "variation": r4(r.variation),
+        "auc": r4(r.auc),
+        "contrast": r4(r.contrast),
+        "n_segments": len(r.segments),
+        "segment_starts_frames": [s.start for s in r.segments],
+        "segmentation_fallback": r.segmentation_fallback,
+        "variation_method": r.variation_method,
+    }
+    if args.verbose:
+        out.update(per_letter_similarity=r.per_letter_similarity,
+                   per_letter_variation=r.per_letter_variation,
+                   cross_pair_distances=r.cross_pair_distances,
+                   same_pair_distances=r.same_pair_distances,
+                   within_segment_distances=r.within_segment_distances,
+                   copy_ratios=r.copy_ratios, note_change=r.note_change)
+    print(json.dumps(out, indent=2))
+    if args.json_out:
+        with open(args.json_out, "w") as f:
+            json.dump(out, f, indent=2)
 
 
 if __name__ == "__main__":

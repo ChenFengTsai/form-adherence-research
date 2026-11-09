@@ -1,0 +1,1408 @@
+{
+  "settings": {
+    "manifest": "data/msa/songformbench_manifest.json",
+    "audio_dir": "/storage/ssd1/richtsai1103/form-adherence-research/songformbench/audio",
+    "config": "configs/eval_sfb_mean.json",
+    "limit": 30,
+    "min_seconds": 6.0,
+    "extractor": "real",
+    "aggregate": "mean",
+    "chance_margin": 0.05,
+    "save_json": "results/sfb_copy_paste.json",
+    "sources": "clap,encodec",
+    "clap_window": 1.0,
+    "clap_hop": null,
+    "encodec_bandwidth": 6.0,
+    "encodec_pool": 8,
+    "frame_rate": 2.0,
+    "extractor_version": "t2",
+    "reuse_legacy_cache": false
+  },
+  "n_songs": 30,
+  "conditions": {
+    "original": {
+      "median_q": 0.7557897318729497,
+      "median_pair_variation": 1.0,
+      "frac_pair_variation_zero": 0.03333333333333333,
+      "median_d_distinct": 0.0,
+      "median_d_similar": 0.0,
+      "median_d_overall": 0.0
+    },
+    "copy": {
+      "median_q": 0.02870415150468527,
+      "median_pair_variation": 0.0,
+      "frac_pair_variation_zero": 0.9,
+      "median_d_distinct": 6.1028756774272885e-05,
+      "median_d_similar": 0.0012276211986573249,
+      "median_d_overall": -0.006754106067627552
+    },
+    "copy_offset": {
+      "median_q": 0.19656724062320696,
+      "median_pair_variation": 0.3093781108437187,
+      "frac_pair_variation_zero": 0.23333333333333334,
+      "median_d_distinct": -0.0002592122215997472,
+      "median_d_similar": 0.0006536076095792209,
+      "median_d_overall": -0.0032156367790274754
+    },
+    "copy_noise": {
+      "median_q": 1.3859692667163341,
+      "median_pair_variation": 1.0,
+      "frac_pair_variation_zero": 0.06666666666666667,
+      "median_d_distinct": -0.012251259685951699,
+      "median_d_similar": -0.0058702223234985695,
+      "median_d_overall": -0.004738075566930955
+    }
+  },
+  "songs": [
+    {
+      "id": "cn_BC_01bc5b",
+      "letter": "C",
+      "pair": [
+        3,
+        7
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.9142960606934181,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.6335711933323793,
+        "similarity": 0.5769416163962136,
+        "variation": 1.0,
+        "overall": 0.7150050293123258
+      },
+      "copy": {
+        "q": 0.028431808186299725,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.6373494666336866,
+        "similarity": 0.5766468823388433,
+        "variation": 0.9166666666666667,
+        "overall": 0.6958244281981398
+      },
+      "copy_offset": {
+        "q": 0.19140970137370006,
+        "pair_variation": 0.2750225947479996,
+        "letter_variation": 0.879170432458,
+        "distinctness": 0.6366936947549906,
+        "similarity": 0.5748311823411298,
+        "variation": 0.9395852162289999,
+        "overall": 0.7005981952546831
+      },
+      "copy_noise": {
+        "q": 4.728166448117405,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.6060949606027053,
+        "similarity": 0.5597201376221345,
+        "variation": 1.0,
+        "overall": 0.6974352091937204
+      }
+    },
+    {
+      "id": "cn_BC_032f29",
+      "letter": "C",
+      "pair": [
+        2,
+        5
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.5275975865657319,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8090525933259809,
+        "similarity": 0.7207290469266856,
+        "variation": 1.0,
+        "overall": 0.8354419138829268
+      },
+      "copy": {
+        "q": 0.6639806567825576,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8096633238310835,
+        "similarity": 0.7267508609786227,
+        "variation": 1.0,
+        "overall": 0.8379729646968367
+      },
+      "copy_offset": {
+        "q": 0.6257404459922503,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8099388307619476,
+        "similarity": 0.7267469842622681,
+        "variation": 1.0,
+        "overall": 0.8380665103933354
+      },
+      "copy_noise": {
+        "q": 0.8103397730197074,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8075143603422712,
+        "similarity": 0.7265830866809218,
+        "variation": 1.0,
+        "overall": 0.8371665093449172
+      }
+    },
+    {
+      "id": "cn_BC_04e35a",
+      "letter": "D",
+      "pair": [
+        4,
+        8
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.2877913955200577,
+        "pair_variation": 0.9170424969512541,
+        "letter_variation": 0.9530231316251471,
+        "distinctness": 0.7581452149948169,
+        "similarity": 0.5665891121539617,
+        "variation": 0.6510077105417157,
+        "overall": 0.6539365098911388
+      },
+      "copy": {
+        "q": 0.022341012668662674,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8617916102654734,
+        "distinctness": 0.7583939686774844,
+        "similarity": 0.5685837606718238,
+        "variation": 0.6205972034218245,
+        "overall": 0.644416094881253
+      },
+      "copy_offset": {
+        "q": 0.2925021859576939,
+        "pair_variation": 0.9484221198439431,
+        "letter_variation": 0.9551141794490409,
+        "distinctness": 0.7583983760441332,
+        "similarity": 0.5679672956764228,
+        "variation": 0.6517047264830137,
+        "overall": 0.6547726513311765
+      },
+      "copy_noise": {
+        "q": 0.679090561493554,
+        "pair_variation": 1.0,
+        "letter_variation": 0.9585529636563568,
+        "distinctness": 0.7574584795302772,
+        "similarity": 0.5737909846707159,
+        "variation": 0.6528509878854523,
+        "overall": 0.6571162482065388
+      }
+    },
+    {
+      "id": "cn_BC_0628e9",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 1.0469966873221916,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7732425623856954,
+        "similarity": 0.5436611134236192,
+        "variation": 1.0,
+        "overall": 0.7491141614890674
+      },
+      "copy": {
+        "q": 0.06735066880468417,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.7823203963093184,
+        "similarity": 0.5413870019893318,
+        "variation": 0.9666666666666667,
+        "overall": 0.7425455054106724
+      },
+      "copy_offset": {
+        "q": 0.15946505907662095,
+        "pair_variation": 0.062232227187691246,
+        "letter_variation": 0.9042395694903111,
+        "distinctness": 0.7825742415176744,
+        "similarity": 0.5423521720573742,
+        "variation": 0.9521197847451556,
+        "overall": 0.7393206571028778
+      },
+      "copy_noise": {
+        "q": 2.6124160939606926,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7138809219143168,
+        "similarity": 0.5047602071958113,
+        "variation": 1.0,
+        "overall": 0.7116016754120994
+      }
+    },
+    {
+      "id": "cn_BC_097508",
+      "letter": "C",
+      "pair": [
+        3,
+        7
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.7901080407965355,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8473232676845248,
+        "similarity": 0.7763459260572267,
+        "variation": 1.0,
+        "overall": 0.8696973302730399
+      },
+      "copy": {
+        "q": 0.006239422491088543,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9642857142857143,
+        "distinctness": 0.846802537995805,
+        "similarity": 0.7754886133184541,
+        "variation": 0.9821428571428572,
+        "overall": 0.863994039278007
+      },
+      "copy_offset": {
+        "q": 0.21715321267339796,
+        "pair_variation": 0.44650584946131205,
+        "letter_variation": 0.9802323517664754,
+        "distinctness": 0.8469530739037748,
+        "similarity": 0.774549363041596,
+        "variation": 0.9901161758832377,
+        "overall": 0.8660272053946834
+      },
+      "copy_noise": {
+        "q": 0.7286007716142442,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8427337432173971,
+        "similarity": 0.7740161469121665,
+        "variation": 1.0,
+        "overall": 0.8672549780927674
+      }
+    },
+    {
+      "id": "cn_BC_09a8cb",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.6657910268365491,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8770934591677749,
+        "similarity": 0.7992293476834258,
+        "variation": 1.0,
+        "overall": 0.88832611913836
+      },
+      "copy": {
+        "q": 0.12456971724187657,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.8785809525329602,
+        "similarity": 0.7969556809948486,
+        "variation": 0.9666666666666667,
+        "overall": 0.878006166020374
+      },
+      "copy_offset": {
+        "q": 0.23530501201563822,
+        "pair_variation": 0.5674190222555319,
+        "letter_variation": 0.9711612681503687,
+        "distinctness": 0.8762673545265761,
+        "similarity": 0.7956764716597721,
+        "variation": 0.9855806340751844,
+        "overall": 0.8824466049198537
+      },
+      "copy_noise": {
+        "q": 0.23110257921085584,
+        "pair_variation": 0.5394256826256526,
+        "letter_variation": 0.9692950455083768,
+        "distinctness": 0.8766662326789001,
+        "similarity": 0.7934323381052368,
+        "variation": 0.9846475227541884,
+        "overall": 0.881471596853597
+      }
+    },
+    {
+      "id": "cn_BC_0d57a8",
+      "letter": "D",
+      "pair": [
+        4,
+        9
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.2851309327193122,
+        "pair_variation": 0.8993205624876797,
+        "letter_variation": 0.989563205011917,
+        "distinctness": 0.7212012922898007,
+        "similarity": 0.7521240920617297,
+        "variation": 0.6631877350039723,
+        "overall": 0.7112039511911353
+      },
+      "copy": {
+        "q": 0.03363177538851082,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.7215423223782005,
+        "similarity": 0.7512074807148328,
+        "variation": 0.6444444444444445,
+        "overall": 0.7042643951342752
+      },
+      "copy_offset": {
+        "q": 0.15055267387637772,
+        "pair_variation": 0.0028648470504525126,
+        "letter_variation": 0.9335243231366969,
+        "distinctness": 0.7207653654718383,
+        "similarity": 0.7521821963260154,
+        "variation": 0.6445081077122322,
+        "overall": 0.7043390730345229
+      },
+      "copy_noise": {
+        "q": 0.4255295939334651,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7165859010587371,
+        "similarity": 0.7499244248078271,
+        "variation": 0.6666666666666666,
+        "overall": 0.7102286154310201
+      }
+    },
+    {
+      "id": "cn_BC_0dd6dc",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.7030675560091192,
+        "pair_variation": 1.0,
+        "letter_variation": 0.7581912645505885,
+        "distinctness": 0.8167353301647537,
+        "similarity": 0.6785491405862951,
+        "variation": 0.7576569248354589,
+        "overall": 0.7488216888100523
+      },
+      "copy": {
+        "q": 0.012857973600745264,
+        "pair_variation": 0.0,
+        "letter_variation": 0.6343344320600182,
+        "distinctness": 0.8152821608119792,
+        "similarity": 0.6714646197670415,
+        "variation": 0.6957264723950883,
+        "overall": 0.7248640047439056
+      },
+      "copy_offset": {
+        "q": 0.12809724065928116,
+        "pair_variation": 0.0,
+        "letter_variation": 0.6378468699790562,
+        "distinctness": 0.8159750510593577,
+        "similarity": 0.6731090003383848,
+        "variation": 0.6974824257560412,
+        "overall": 0.7262706865695996
+      },
+      "copy_noise": {
+        "q": 0.1962231589136239,
+        "pair_variation": 0.3070861060445399,
+        "letter_variation": 0.7750393564273208,
+        "distinctness": 0.8120649439200884,
+        "similarity": 0.6702945830540494,
+        "variation": 0.7660799192975709,
+        "overall": 0.7470967555410287
+      }
+    },
+    {
+      "id": "cn_BC_0ed1a5",
+      "letter": "D",
+      "pair": [
+        4,
+        9
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.29763350483742285,
+        "pair_variation": 0.982602976224561,
+        "letter_variation": 0.998260297622456,
+        "distinctness": 0.6450511137969679,
+        "similarity": 0.4554945361801393,
+        "variation": 0.749565074405614,
+        "overall": 0.6038960857062031
+      },
+      "copy": {
+        "q": 0.07980624785253539,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9,
+        "distinctness": 0.6449244176278489,
+        "similarity": 0.45728027745627553,
+        "variation": 0.725,
+        "overall": 0.5979659194481827
+      },
+      "copy_offset": {
+        "q": 0.19871374957570428,
+        "pair_variation": 0.3236764844090149,
+        "letter_variation": 0.9323676484409015,
+        "distinctness": 0.6449028831345184,
+        "similarity": 0.4573732982723967,
+        "variation": 0.7330919121102254,
+        "overall": 0.600216390899989
+      },
+      "copy_noise": {
+        "q": 1.7588809100537253,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.6255793956199585,
+        "similarity": 0.44111121720503954,
+        "variation": 0.75,
+        "overall": 0.5915125096551809
+      }
+    },
+    {
+      "id": "cn_BC_102d5a",
+      "letter": "C",
+      "pair": [
+        3,
+        6
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.38173924021396866,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7271226293904509,
+        "similarity": 0.6761079340229137,
+        "variation": 0.854250931051376,
+        "overall": 0.748864169019061
+      },
+      "copy": {
+        "q": 0.03450040023254817,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.7242503971861028,
+        "similarity": 0.6787005414088014,
+        "variation": 0.7713341778185177,
+        "overall": 0.7237743217256075
+      },
+      "copy_offset": {
+        "q": 0.14900520385953797,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.7259603340009098,
+        "similarity": 0.6796400511904688,
+        "variation": 0.7692771130696637,
+        "overall": 0.7240327692337022
+      },
+      "copy_noise": {
+        "q": 0.27181547234523107,
+        "pair_variation": 0.8106233192728284,
+        "letter_variation": 0.9684372198788047,
+        "distinctness": 0.7210642036505134,
+        "similarity": 0.6797867631379306,
+        "variation": 0.8377777571760701,
+        "overall": 0.7432903397981198
+      }
+    },
+    {
+      "id": "cn_BC_10a455",
+      "letter": "D",
+      "pair": [
+        4,
+        5
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.9050489111213962,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.6856376287076134,
+        "similarity": 0.4930614237499308,
+        "variation": 1.0,
+        "overall": 0.6966241987673768
+      },
+      "copy": {
+        "q": 0.016711414819744575,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.6904260100804331,
+        "similarity": 0.4984358785073718,
+        "variation": 0.9833333333333334,
+        "overall": 0.6968549679121466
+      },
+      "copy_offset": {
+        "q": 0.29682842786065067,
+        "pair_variation": 0.9772401794147386,
+        "letter_variation": 0.9984826786276493,
+        "distinctness": 0.6909179532810823,
+        "similarity": 0.49905370619591016,
+        "variation": 0.9996206696569123,
+        "overall": 0.7011371789537404
+      },
+      "copy_noise": {
+        "q": 0.12339129635228573,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.6873362862421617,
+        "similarity": 0.4952488174727659,
+        "variation": 0.9833333333333334,
+        "overall": 0.6943277029633426
+      }
+    },
+    {
+      "id": "cn_BC_14af06",
+      "letter": "C",
+      "pair": [
+        2,
+        6
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.39877675120518835,
+        "pair_variation": 1.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.6320631621068938,
+        "similarity": 0.643256295062157,
+        "variation": 0.9166666666666667,
+        "overall": 0.7196455670940977
+      },
+      "copy": {
+        "q": 0.02897649482307082,
+        "pair_variation": 0.0,
+        "letter_variation": 0.6666666666666666,
+        "distinctness": 0.6349246585117034,
+        "similarity": 0.6445793943043592,
+        "variation": 0.8333333333333333,
+        "overall": 0.6986705787325073
+      },
+      "copy_offset": {
+        "q": 0.30686847495102276,
+        "pair_variation": 1.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.6331950196095955,
+        "similarity": 0.6426895838956639,
+        "variation": 0.9166666666666667,
+        "overall": 0.7198633507212038
+      },
+      "copy_noise": {
+        "q": 1.6264405249071014,
+        "pair_variation": 1.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.5873530027665308,
+        "similarity": 0.5935462944343977,
+        "variation": 0.9166666666666667,
+        "overall": 0.6836834654433382
+      }
+    },
+    {
+      "id": "cn_BC_15de31",
+      "letter": "C",
+      "pair": [
+        2,
+        4
+      ],
+      "raw_label": "pre-chorus",
+      "original": {
+        "q": 0.06890512798184878,
+        "pair_variation": 0.0,
+        "letter_variation": 0.0,
+        "distinctness": 0.8840530367386797,
+        "similarity": 0.832048396694847,
+        "variation": 0.18421874965112042,
+        "overall": 0.5136337817027405
+      },
+      "copy": {
+        "q": 0.007211649820675164,
+        "pair_variation": 0.0,
+        "letter_variation": 0.0,
+        "distinctness": 0.9026212039815343,
+        "similarity": 0.8529157607056792,
+        "variation": 0.21381375767634,
+        "overall": 0.5480444353539388
+      },
+      "copy_offset": {
+        "q": 0.12178792250767895,
+        "pair_variation": 0.0,
+        "letter_variation": 0.0,
+        "distinctness": 0.8806157582665246,
+        "similarity": 0.8349041973581632,
+        "variation": 0.21558985760956095,
+        "overall": 0.5411908861001136
+      },
+      "copy_noise": {
+        "q": 1.9764522802949094,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.5997787193458186,
+        "similarity": 0.4258299891838263,
+        "variation": 0.7175805843697037,
+        "overall": 0.5680230923525906
+      }
+    },
+    {
+      "id": "cn_BC_18a49a",
+      "letter": "D",
+      "pair": [
+        4,
+        12
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 1.69010715641797,
+        "pair_variation": 1.0,
+        "letter_variation": 0.9796937745997147,
+        "distinctness": 0.7221701244273063,
+        "similarity": 0.6060566787621634,
+        "variation": 0.9949234436499287,
+        "overall": 0.7579620725904948
+      },
+      "copy": {
+        "q": 0.01255607481336612,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8996144957941967,
+        "distinctness": 0.7324701989823535,
+        "similarity": 0.614087537018889,
+        "variation": 0.9749036239485491,
+        "overall": 0.7597323907169452
+      },
+      "copy_offset": {
+        "q": 0.20124480531856384,
+        "pair_variation": 0.34053640967692006,
+        "letter_variation": 0.9060005660426206,
+        "distinctness": 0.7322231528553814,
+        "similarity": 0.6146036645685498,
+        "variation": 0.9765001415106551,
+        "overall": 0.7602742900966889
+      },
+      "copy_noise": {
+        "q": 2.3323009268059183,
+        "pair_variation": 1.0,
+        "letter_variation": 0.9796937745997147,
+        "distinctness": 0.6840820985591406,
+        "similarity": 0.5695080997616541,
+        "variation": 0.9949234436499287,
+        "overall": 0.729120426176589
+      }
+    },
+    {
+      "id": "cn_BC_1ceb17",
+      "letter": "C",
+      "pair": [
+        3,
+        6
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 4.160548111490035,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.69633818229719,
+        "similarity": 0.5719216869184246,
+        "variation": 1.0,
+        "overall": 0.7357307788072684
+      },
+      "copy": {
+        "q": 0.07454785898431819,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.7172423347325431,
+        "similarity": 0.5980559113326602,
+        "variation": 0.9583333333333334,
+        "overall": 0.7435464408171589
+      },
+      "copy_offset": {
+        "q": 0.2517784891116617,
+        "pair_variation": 0.6771525172704275,
+        "letter_variation": 0.9461920862117378,
+        "distinctness": 0.7183851136412535,
+        "similarity": 0.6000572763655938,
+        "variation": 0.9865480215529344,
+        "overall": 0.7520085070843645
+      },
+      "copy_noise": {
+        "q": 0.20918490160489575,
+        "pair_variation": 0.39342715709929127,
+        "letter_variation": 0.8989045261832151,
+        "distinctness": 0.7170789122604934,
+        "similarity": 0.5972602224223703,
+        "variation": 0.9747261315458038,
+        "overall": 0.7473735387789583
+      }
+    },
+    {
+      "id": "cn_BC_260c12",
+      "letter": "D",
+      "pair": [
+        3,
+        8
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.7694715608173989,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8129345888719726,
+        "similarity": 0.7532623185239823,
+        "variation": 1.0,
+        "overall": 0.8491816775827851
+      },
+      "copy": {
+        "q": 0.011191713547724996,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9,
+        "distinctness": 0.8123590288284691,
+        "similarity": 0.7551429420550604,
+        "variation": 0.9666666666666667,
+        "overall": 0.840139313377467
+      },
+      "copy_offset": {
+        "q": 0.3963748479298336,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8092138319098025,
+        "similarity": 0.7493682124362007,
+        "variation": 1.0,
+        "overall": 0.8464205289030866
+      },
+      "copy_noise": {
+        "q": 0.6361391410573801,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8030512318140186,
+        "similarity": 0.7552071393093267,
+        "variation": 1.0,
+        "overall": 0.8464535157329515
+      }
+    },
+    {
+      "id": "cn_BC_26e8a5",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.8137857736126979,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8905560960300495,
+        "similarity": 0.716268649751314,
+        "variation": 1.0,
+        "overall": 0.8608201174476765
+      },
+      "copy": {
+        "q": 0.019987636527284258,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9281761622796252,
+        "distinctness": 0.8885917385836635,
+        "similarity": 0.7076498288950257,
+        "variation": 0.9640880811398126,
+        "overall": 0.8463418120948049
+      },
+      "copy_offset": {
+        "q": 0.14007776411969214,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9304216686999951,
+        "distinctness": 0.8905608728930318,
+        "similarity": 0.7095717386170681,
+        "variation": 0.9652108343499975,
+        "overall": 0.8480615423827547
+      },
+      "copy_noise": {
+        "q": 1.2831373463278755,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8509153609219323,
+        "similarity": 0.6848347520912692,
+        "variation": 1.0,
+        "overall": 0.8352645534846087
+      }
+    },
+    {
+      "id": "cn_BC_282ece",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "pre-chorus",
+      "original": {
+        "q": 0.788377597269506,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7538378129601138,
+        "similarity": 0.5503191302411213,
+        "variation": 1.0,
+        "overall": 0.7458145345912525
+      },
+      "copy": {
+        "q": 0.022204815125908627,
+        "pair_variation": 0.0,
+        "letter_variation": 0.6666666666666666,
+        "distinctness": 0.7632425994969003,
+        "similarity": 0.5652719799765934,
+        "variation": 0.8888888888888888,
+        "overall": 0.7265338376794492
+      },
+      "copy_offset": {
+        "q": 0.1565903480732187,
+        "pair_variation": 0.04308313779251712,
+        "letter_variation": 0.6810277125975057,
+        "distinctness": 0.763240698601538,
+        "similarity": 0.5649458841820146,
+        "variation": 0.8936759041991685,
+        "overall": 0.7276951369054693
+      },
+      "copy_noise": {
+        "q": 1.771082241971354,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7456530663125194,
+        "similarity": 0.5599865863188006,
+        "variation": 1.0,
+        "overall": 0.7474316385452435
+      }
+    },
+    {
+      "id": "cn_BC_297b80",
+      "letter": "C",
+      "pair": [
+        3,
+        7
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.5631821262282124,
+        "pair_variation": 1.0,
+        "letter_variation": 0.9182284272225382,
+        "distinctness": 0.7131556463770246,
+        "similarity": 0.5456950974737264,
+        "variation": 0.9727428090741794,
+        "overall": 0.7233982748387737
+      },
+      "copy": {
+        "q": 0.01999260799761918,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8454737221466472,
+        "distinctness": 0.7128938265058664,
+        "similarity": 0.5462397343555536,
+        "variation": 0.948491240715549,
+        "overall": 0.7174866458326299
+      },
+      "copy_offset": {
+        "q": 0.2654366063857548,
+        "pair_variation": 0.7681322743109942,
+        "letter_variation": 0.8966184069591372,
+        "distinctness": 0.7130698235995554,
+        "similarity": 0.5469442084285991,
+        "variation": 0.9655394689863791,
+        "overall": 0.7221294205372557
+      },
+      "copy_noise": {
+        "q": 6.494057696844853,
+        "pair_variation": 1.0,
+        "letter_variation": 0.9124716529905471,
+        "distinctness": 0.6808186033980208,
+        "similarity": 0.5429305659671185,
+        "variation": 0.9708238843301823,
+        "overall": 0.7106221163029488
+      }
+    },
+    {
+      "id": "cn_BC_29b8cc",
+      "letter": "D",
+      "pair": [
+        4,
+        5
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.9629032985885482,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8517123882010024,
+        "similarity": 0.653098867493392,
+        "variation": 1.0,
+        "overall": 0.8224142591819178
+      },
+      "copy": {
+        "q": 1.1989665617993177,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8400260698466719,
+        "similarity": 0.6606946396462492,
+        "variation": 1.0,
+        "overall": 0.8217969326057504
+      },
+      "copy_offset": {
+        "q": 1.3670526800618845,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8401817009075877,
+        "similarity": 0.6620748908461257,
+        "variation": 1.0,
+        "overall": 0.8224195875089159
+      },
+      "copy_noise": {
+        "q": 1.8643771054079743,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8416929916056252,
+        "similarity": 0.6594466932537525,
+        "variation": 1.0,
+        "overall": 0.821822073626506
+      }
+    },
+    {
+      "id": "cn_BC_2a49b8",
+      "letter": "E",
+      "pair": [
+        5,
+        9
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.893308169633464,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8079579968336079,
+        "similarity": 0.5961602804489056,
+        "variation": 1.0,
+        "overall": 0.7838818467307547
+      },
+      "copy": {
+        "q": 0.015624040568385032,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.807773193896945,
+        "similarity": 0.597292423604018,
+        "variation": 0.9583333333333334,
+        "overall": 0.7732697345243152
+      },
+      "copy_offset": {
+        "q": 0.25935460004381206,
+        "pair_variation": 0.7276186772899232,
+        "letter_variation": 0.9546031128816539,
+        "distinctness": 0.8000797940774312,
+        "similarity": 0.5975677926707281,
+        "variation": 0.9886507782204135,
+        "overall": 0.7789707176573027
+      },
+      "copy_noise": {
+        "q": 0.6244335633663894,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8083255154973497,
+        "similarity": 0.5958366099558717,
+        "variation": 1.0,
+        "overall": 0.7838587741161578
+      }
+    },
+    {
+      "id": "cn_BC_2a5770",
+      "letter": "C",
+      "pair": [
+        3,
+        7
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.6093475541867484,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7146199422304476,
+        "similarity": 0.5826684671262738,
+        "variation": 1.0,
+        "overall": 0.7467333519711624
+      },
+      "copy": {
+        "q": 0.5011266952945641,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7130142565675597,
+        "similarity": 0.579102923771913,
+        "variation": 1.0,
+        "overall": 0.7446485080779391
+      },
+      "copy_offset": {
+        "q": 0.5120173143797601,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7126347906530974,
+        "similarity": 0.5795319671300242,
+        "variation": 1.0,
+        "overall": 0.7447002034285771
+      },
+      "copy_noise": {
+        "q": 5.102637453270885,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.6438198026903978,
+        "similarity": 0.4851166062434152,
+        "variation": 1.0,
+        "overall": 0.6784796466418175
+      }
+    },
+    {
+      "id": "cn_BC_2b7db0",
+      "letter": "D",
+      "pair": [
+        4,
+        8
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 1.780975647354148,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7327470892297983,
+        "similarity": 0.6895806467621363,
+        "variation": 1.0,
+        "overall": 0.7964888896040516
+      },
+      "copy": {
+        "q": 0.02281120713674915,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.6926313612773709,
+        "similarity": 0.6422072403627176,
+        "variation": 0.9777777777777779,
+        "overall": 0.7576567627480079
+      },
+      "copy_offset": {
+        "q": 0.1401505029035306,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.692566515318265,
+        "similarity": 0.6427896102674242,
+        "variation": 0.9777777777777779,
+        "overall": 0.7578620618953412
+      },
+      "copy_noise": {
+        "q": 5.488646833868573,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.5745187659426999,
+        "similarity": 0.5483913605181919,
+        "variation": 1.0,
+        "overall": 0.6804532212885219
+      }
+    },
+    {
+      "id": "cn_BC_2cf9bb",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "pre-chorus",
+      "original": {
+        "q": 0.7421079029285006,
+        "pair_variation": 1.0,
+        "letter_variation": 0.9060883736209476,
+        "distinctness": 0.9060985570043532,
+        "similarity": 0.6737025747735149,
+        "variation": 0.9686961245403158,
+        "overall": 0.8393512394223244
+      },
+      "copy": {
+        "q": 0.07719276339395503,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8306883640721919,
+        "distinctness": 0.9110925640198544,
+        "similarity": 0.688527989765452,
+        "variation": 0.9435627880240639,
+        "overall": 0.8396242414170635
+      },
+      "copy_offset": {
+        "q": 0.1944207316707096,
+        "pair_variation": 0.2950797372784224,
+        "letter_variation": 0.8825132895464037,
+        "distinctness": 0.910657368607416,
+        "similarity": 0.6868085828184306,
+        "variation": 0.9608377631821345,
+        "overall": 0.8438791584511146
+      },
+      "copy_noise": {
+        "q": 1.4843705970959367,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.9003558985149709,
+        "similarity": 0.6984487004390897,
+        "variation": 1.0,
+        "overall": 0.8567410493537846
+      }
+    },
+    {
+      "id": "cn_BC_368486",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 1.3835856041069579,
+        "pair_variation": 1.0,
+        "letter_variation": 0.873218162966506,
+        "distinctness": 0.7724638509659016,
+        "similarity": 0.6065654338109712,
+        "variation": 0.8136937800175074,
+        "overall": 0.7251128579296129
+      },
+      "copy": {
+        "q": 0.12829789956627327,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8247829188974625,
+        "distinctness": 0.771250176475166,
+        "similarity": 0.5968343301017235,
+        "variation": 0.789332640122661,
+        "overall": 0.7135696631825098
+      },
+      "copy_offset": {
+        "q": 0.16741962535694524,
+        "pair_variation": 0.11521936245850346,
+        "letter_variation": 0.8373889246388946,
+        "distinctness": 0.7719471923711426,
+        "similarity": 0.5973837888760392,
+        "variation": 0.7956403343102463,
+        "overall": 0.7159004005502569
+      },
+      "copy_noise": {
+        "q": 1.3259784892674928,
+        "pair_variation": 1.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.7579807281893755,
+        "similarity": 0.5866276071510641,
+        "variation": 0.8436562471236284,
+        "overall": 0.7212105360166923
+      }
+    },
+    {
+      "id": "cn_BC_36a6f0",
+      "letter": "C",
+      "pair": [
+        3,
+        6
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.17534311337754652,
+        "pair_variation": 0.16799947852878455,
+        "letter_variation": 0.17867844413840187,
+        "distinctness": 0.6246834037923399,
+        "similarity": 0.6475645574600939,
+        "variation": 0.4959376627981562,
+        "overall": 0.5854053808113858
+      },
+      "copy": {
+        "q": 0.0007697062261405976,
+        "pair_variation": 0.0,
+        "letter_variation": 0.2525477002617456,
+        "distinctness": 0.6224825457634855,
+        "similarity": 0.6415446756264553,
+        "variation": 0.535289886995808,
+        "overall": 0.5979263700505515
+      },
+      "copy_offset": {
+        "q": 0.07710582827788429,
+        "pair_variation": 0.0,
+        "letter_variation": 0.2641892572287316,
+        "distinctness": 0.6215209193286754,
+        "similarity": 0.6400208266674221,
+        "variation": 0.5423483478635696,
+        "overall": 0.5997580137865226
+      },
+      "copy_noise": {
+        "q": 0.011858483565881511,
+        "pair_variation": 0.0,
+        "letter_variation": 0.2365773117140071,
+        "distinctness": 0.6231955134350309,
+        "similarity": 0.6439103895337526,
+        "variation": 0.5272866007559005,
+        "overall": 0.5958891739745293
+      }
+    },
+    {
+      "id": "cn_BC_3c7bda",
+      "letter": "C",
+      "pair": [
+        3,
+        4
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 1.0842016136914463,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7872176490400709,
+        "similarity": 0.6134463596687225,
+        "variation": 0.9868923062373658,
+        "overall": 0.7811127492043749
+      },
+      "copy": {
+        "q": 0.03252617410817054,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.7951618669060675,
+        "similarity": 0.6251203598419192,
+        "variation": 0.9646817604683401,
+        "overall": 0.7827103655385237
+      },
+      "copy_offset": {
+        "q": 0.11060700768207829,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.7947407320170696,
+        "similarity": 0.6261695399819054,
+        "variation": 0.9646834991930385,
+        "overall": 0.7830102006647485
+      },
+      "copy_noise": {
+        "q": 1.4459600441651754,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7678792403332065,
+        "similarity": 0.6060795169666404,
+        "variation": 0.9869045013684129,
+        "overall": 0.7715532194152326
+      }
+    },
+    {
+      "id": "cn_BC_411439",
+      "letter": "C",
+      "pair": [
+        3,
+        8
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.6334818600413514,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8189114070123926,
+        "similarity": 0.5021866645243858,
+        "variation": 1.0,
+        "overall": 0.7436479165396142
+      },
+      "copy": {
+        "q": 0.01373317939351066,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.8130758101983389,
+        "similarity": 0.4995856161061394,
+        "variation": 0.9666666666666667,
+        "overall": 0.7322722387410839
+      },
+      "copy_offset": {
+        "q": 0.20856197184802658,
+        "pair_variation": 0.3892776834349527,
+        "letter_variation": 0.9592851788956636,
+        "distinctness": 0.8109392890196123,
+        "similarity": 0.4979813913577933,
+        "variation": 0.9796425894478318,
+        "overall": 0.7341019391601243
+      },
+      "copy_noise": {
+        "q": 1.2359099354853258,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.8021517974367137,
+        "similarity": 0.4962432294555776,
+        "variation": 1.0,
+        "overall": 0.7356146760672216
+      }
+    },
+    {
+      "id": "cn_BC_42b7f4",
+      "letter": "B",
+      "pair": [
+        1,
+        5
+      ],
+      "raw_label": "chorus",
+      "original": {
+        "q": 0.35048579871140584,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.6123854013605431,
+        "similarity": 0.3419613428234747,
+        "variation": 1.0,
+        "overall": 0.593837037467871
+      },
+      "copy": {
+        "q": 0.053835998283686355,
+        "pair_variation": 0.0,
+        "letter_variation": 0.8333333333333334,
+        "distinctness": 0.6103025384891458,
+        "similarity": 0.3391007913434719,
+        "variation": 0.9444444444444445,
+        "overall": 0.5803412827141562
+      },
+      "copy_offset": {
+        "q": 0.1542193267825092,
+        "pair_variation": 0.027289237605707815,
+        "letter_variation": 0.8378815396009514,
+        "distinctness": 0.6119270499528138,
+        "similarity": 0.3406766611056283,
+        "variation": 0.9459605132003172,
+        "overall": 0.5820652613246897
+      },
+      "copy_noise": {
+        "q": 2.9952602400340727,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.5586366910569949,
+        "similarity": 0.32883358499269694,
+        "variation": 1.0,
+        "overall": 0.5684625705912549
+      }
+    },
+    {
+      "id": "cn_BC_463ef1",
+      "letter": "B",
+      "pair": [
+        1,
+        6
+      ],
+      "raw_label": "verse",
+      "original": {
+        "q": 1.6373551017069512,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.7525387499401998,
+        "similarity": 0.6095546666142223,
+        "variation": 1.0,
+        "overall": 0.7712239525967521
+      },
+      "copy": {
+        "q": 0.057565093059442136,
+        "pair_variation": 0.0,
+        "letter_variation": 0.9333333333333333,
+        "distinctness": 0.7923987634505902,
+        "similarity": 0.6402204566386777,
+        "variation": 0.9666666666666667,
+        "overall": 0.7885877499377995
+      },
+      "copy_offset": {
+        "q": 0.17749375915705648,
+        "pair_variation": 0.18232540841893694,
+        "letter_variation": 0.9454883605612624,
+        "distinctness": 0.7904829274504294,
+        "similarity": 0.6370780901857814,
+        "variation": 0.9727441802806311,
+        "overall": 0.7883055819153006
+      },
+      "copy_noise": {
+        "q": 5.119233537175974,
+        "pair_variation": 1.0,
+        "letter_variation": 1.0,
+        "distinctness": 0.461290414919564,
+        "similarity": 0.38373102489728966,
+        "variation": 1.0,
+        "overall": 0.5614793408387405
+      }
+    }
+  ]
+}

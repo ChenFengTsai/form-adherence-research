@@ -1,0 +1,63 @@
+{
+  "settings": {
+    "manifest": "data/msa/songformbench_manifest.json",
+    "limit": 0,
+    "frame_rate": 2.0,
+    "kernels": "8,16,24,32",
+    "tolerances": "0.5,3",
+    "features": "embedding",
+    "audio_dir": "",
+    "save_json": "results/sfb_segmentation.json"
+  },
+  "n_songs": 287,
+  "results": {
+    "foote k=8 [embedding]": {
+      "f": {
+        "0.5": 0.31276255740797654,
+        "3.0": 0.544570516534546
+      },
+      "median_dev_s": 2.5,
+      "fallback_rate": 0.0
+    },
+    "foote k=16 [embedding]": {
+      "f": {
+        "0.5": 0.38750174098862356,
+        "3.0": 0.6268608162464485
+      },
+      "median_dev_s": 1.5,
+      "fallback_rate": 0.0
+    },
+    "foote k=24 [embedding]": {
+      "f": {
+        "0.5": 0.3943290682581521,
+        "3.0": 0.6568833551386328
+      },
+      "median_dev_s": 1.5,
+      "fallback_rate": 0.05226480836236934
+    },
+    "foote k=32 [embedding]": {
+      "f": {
+        "0.5": 0.295056876010965,
+        "3.0": 0.5764657679548026
+      },
+      "median_dev_s": 2.5,
+      "fallback_rate": 0.3797909407665505
+    },
+    "equal cuts": {
+      "f": {
+        "0.5": 0.09023587034449916,
+        "3.0": 0.3531894812049557
+      },
+      "median_dev_s": 5.0,
+      "fallback_rate": 0.0
+    },
+    "random cuts": {
+      "f": {
+        "0.5": 0.06675223692581245,
+        "3.0": 0.2635621387818303
+      },
+      "median_dev_s": 7.8125,
+      "fallback_rate": 0.0
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "settings": {
+    "manifest": "data/msa/songformbench_manifest.json",
+    "config": "configs/eval_sfb_mean.json",
+    "limit": 0,
+    "n_edits": 3,
+    "aggregate": "mean",
+    "chance_margin": 0.05,
+    "backend": null,
+    "save_json": "results/sfb_axes.json"
+  },
+  "n_songs": 287,
+  "split": {
+    "n": 843,
+    "median_delta": {
+      "distinctness": -0.0585,
+      "similarity": -0.0404,
+      "variation": 0.0,
+      "overall": -0.039
+    },
+    "frac_down": {
+      "distinctness": 0.8268,
+      "similarity": 0.7497,
+      "variation": 0.1174,
+      "overall": 0.7995
+    },
+    "distinct_hit_harder": 0.6820877817319099
+  },
+  "merge": {
+    "n": 861,
+    "median_delta": {
+      "distinctness": -0.116,
+      "similarity": -0.1498,
+      "variation": 0.0,
+      "overall": -0.1055
+    },
+    "frac_down": {
+      "distinctness": 0.8281,
+      "similarity": 0.8641,
+      "variation": 0.029,
+      "overall": 0.8397
+    },
+    "distinct_hit_harder": 0.3786295005807201
+  },
+  "correlation": {
+    "distinct_vs_similar": 0.866408320349455,
+    "distinct_vs_auc": 0.8190049978479911,
+    "similar_vs_auc": 0.8704792619510032
+  }
+}
